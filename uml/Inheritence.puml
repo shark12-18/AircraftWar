@@ -1,6 +1,7 @@
 @startuml
 'https://plantuml.com/class-diagram
 
+' ========== 基础抽象类 ==========
 abstract class AbstractFlyingObject
 {
     # locationX:int
@@ -25,6 +26,8 @@ abstract class AbstractFlyingObject
     + notValid():boolean
     + vanish():void
 }
+
+' ========== 飞机类层次结构 ==========
 abstract class AbstractAircraft
 {
 	# maxHp:int
@@ -35,7 +38,7 @@ abstract class AbstractAircraft
     + {abstract} shoot():List<BaseBullet>
  }
 
-
+' --- 英雄机 ---
 class HeroAircraft {
     - shootNum:int
     - power:int
@@ -45,15 +48,96 @@ class HeroAircraft {
     + shoot():List<BaseBullet>
 }
 
-AbstractAircraft <|-- HeroAircraft
+' --- 敌机抽象类 ---
+abstract class AbstractEnemy {
+    # score:int
+    + AbstractEnemy(int locationX, int locationY, int speedX, int speedY, int hp, int score)
+    + getScore():int
+}
 
+' --- 具体敌机类 ---
 class MobEnemy {
     + MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
     + shoot():List<BaseBullet>
 }
-AbstractAircraft <|-- MobEnemy
 
+class EliteEnemy {
+    - shootFrequency:int
+    + EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+}
+
+class ElitePlusEnemy {
+    - shootFrequency:int
+    - power:int
+    + ElitePlusEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+}
+
+class EliteProEnemy {
+    - shootFrequency:int
+    - power:int
+    - specialAbility:boolean
+    + EliteProEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+    + activateSpecialAbility():void
+}
+
+class BossEnemy {
+    - shootFrequency:int
+    - power:int
+    - phase:int
+    + BossEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+    + changePhase():void
+}
+
+' ========== 道具类层次结构 ==========
+abstract class AbstractProp {
+    # effectDuration:int
+    + AbstractProp(int locationX, int locationY, int speedX, int speedY, int effectDuration)
+    + {abstract} activate():void
+    + getEffectDuration():int
+}
+
+' --- 具体道具类 ---
+class BloodProp {
+    - healAmount:int
+    + BloodProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+class FireProp {
+    - powerBoost:int
+    + FireProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+class FirePlusProp {
+    - powerBoost:int
+    - duration:int
+    + FirePlusProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+class FreezeProp {
+    - freezeDuration:int
+    + FreezeProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+class BombProp {
+    - explosionRadius:int
+    + BombProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+' ========== 子弹类层次结构 ==========
 abstract class BaseBullet
 {
     - power:int
@@ -72,10 +156,28 @@ class EnemyBullet {
      int speedX, int speedY, int power)
 }
 
+' ========== 继承关系 ==========
+' 飞机类继承关系
+AbstractFlyingObject <|-- AbstractAircraft
+AbstractAircraft <|-- HeroAircraft
+AbstractAircraft <|-- AbstractEnemy
+AbstractEnemy <|-- MobEnemy
+AbstractEnemy <|-- EliteEnemy
+AbstractEnemy <|-- ElitePlusEnemy
+AbstractEnemy <|-- EliteProEnemy
+AbstractEnemy <|-- BossEnemy
+
+' 道具类继承关系
+AbstractFlyingObject <|-- AbstractProp
+AbstractProp <|-- BloodProp
+AbstractProp <|-- FireProp
+AbstractProp <|-- FirePlusProp
+AbstractProp <|-- FreezeProp
+AbstractProp <|-- BombProp
+
+' 子弹类继承关系
+AbstractFlyingObject <|-- BaseBullet
 BaseBullet <|-- HeroBullet
 BaseBullet <|-- EnemyBullet
-
-AbstractFlyingObject <|-- AbstractAircraft
-AbstractFlyingObject <|-- BaseBullet
 
 @enduml
