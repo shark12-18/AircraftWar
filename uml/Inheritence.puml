@@ -1,4 +1,4 @@
-@startuml
+@startuml Inheritence
 'https://plantuml.com/class-diagram
 
 ' ========== 基础抽象类 ==========
@@ -30,28 +30,42 @@ abstract class AbstractFlyingObject
 ' ========== 飞机类层次结构 ==========
 abstract class AbstractAircraft
 {
-	# maxHp:int
+    # maxHp:int
     # hp:int
     + AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
     + decreaseHp(int decrease):void
     + getHp():int
     + {abstract} shoot():List<BaseBullet>
- }
+}
 
-' --- 英雄机 ---
-class HeroAircraft {
+' --- 英雄机（单例模式） ---
+class HeroAircraft
+{
+    - static instance: HeroAircraft
     - shootNum:int
     - power:int
     - direction:int
-    + HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
+    - isAlive:boolean
+    
+    - HeroAircraft()
+    - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
+    
+    + static getInstance(): HeroAircraft
+    + static getInstance(int locationX, int locationY, int speedX, int speedY, int hp): HeroAircraft
+    + static resetInstance(): void
     + forward():void
     + shoot():List<BaseBullet>
+    + isAlive():boolean
+    + revive(int hp):void
 }
 
+
 ' --- 敌机抽象类 ---
-abstract class AbstractEnemy {
+abstract class AbstractEnemy
+{
     # score:int
-    + AbstractEnemy(int locationX, int locationY, int speedX, int speedY, int hp, int score)
+    + AbstractEnemy(int locationX, int locationY,
+     int speedX, int speedY, int hp, int score)
     + getScore():int
 }
 
@@ -138,22 +152,19 @@ class BombProp {
 }
 
 ' ========== 子弹类层次结构 ==========
-abstract class BaseBullet
-{
+abstract class BaseBullet {
     - power:int
     + BaseBullet(int locationX, int locationY, int speedX, int speedY, int power)
     + forward():void
-	+ getPower():int
+    + getPower():int
 }
 
 class HeroBullet {
-    + HeroBullet(int locationX, int locationY,
-     int speedX, int speedY, int power)
+    + HeroBullet(int locationX, int locationY, int speedX, int speedY, int power)
 }
 
 class EnemyBullet {
-    + EnemyBullet(int locationX, int locationY,
-     int speedX, int speedY, int power)
+    + EnemyBullet(int locationX, int locationY, int speedX, int speedY, int power)
 }
 
 ' ========== 继承关系 ==========
