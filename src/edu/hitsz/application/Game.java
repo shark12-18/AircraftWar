@@ -3,6 +3,7 @@ package edu.hitsz.application;
 import edu.hitsz.aircraft.*;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.prop.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +30,7 @@ public class Game extends JPanel {
     private final List<AbstractAircraft> enemyAircrafts;
     private final List<BaseBullet> heroBullets;
     private final List<BaseBullet> enemyBullets;
+    private final List<AbstractProp> props;
 
     //屏幕中出现的敌机最大数量
     private final int enemyMaxNumber = 5;
@@ -36,6 +38,13 @@ public class Game extends JPanel {
     //敌机生成周期
     protected double enemySpawnCycle  =  20;
     private int enemySpawnCounter = 0;
+    
+    //精英敌机生成周期（比普通敌机更长）
+    protected double eliteEnemySpawnCycle = 60;
+    private int eliteEnemySpawnCounter = 0;
+    
+    //道具生成概率（精英敌机坠毁时）
+    private final double propDropProbability = 0.3;
 
     //英雄机和敌机射击周期
     protected double shootCycle = 20;
@@ -48,7 +57,7 @@ public class Game extends JPanel {
     private boolean gameOverFlag = false;
 
     public Game() {
-        heroAircraft = new HeroAircraft(
+        heroAircraft = HeroAircraft.getInstance(
                 Main.WINDOW_WIDTH / 2,
                 Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight() ,
                 0, 0, 100);
@@ -56,6 +65,7 @@ public class Game extends JPanel {
         enemyAircrafts = new LinkedList<>();
         heroBullets = new LinkedList<>();
         enemyBullets = new LinkedList<>();
+        props = new LinkedList<>();
 
         //启动英雄机鼠标监听
         new HeroController(this, heroAircraft);
@@ -75,7 +85,9 @@ public class Game extends JPanel {
             public void run() {
 
                 enemySpawnCounter++;
-                if (enemySpawnCounter >=enemySpawnCycle) {
+                eliteEnemySpawnCounter++;
+                
+                if (enemySpawnCounter >= enemySpawnCycle) {
                     enemySpawnCounter = 0;
                     // 产生普通敌机
                     if (enemyAircrafts.size() < enemyMaxNumber) {
@@ -85,6 +97,20 @@ public class Game extends JPanel {
                                 0,
                                 10,
                                 30
+                        ));
+                    }
+                }
+                
+                if (eliteEnemySpawnCounter >= eliteEnemySpawnCycle) {
+                    eliteEnemySpawnCounter = 0;
+                    // 产生精英敌机
+                    if (enemyAircrafts.size() < enemyMaxNumber) {
+                        enemyAircrafts.add(new EliteEnemy(
+                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
+                                (int) (Math.random() * Main.WINDOW_HEIGHT * 0.05),
+                                0,
+                                8,
+                                60
                         ));
                     }
                 }
@@ -120,7 +146,13 @@ public class Game extends JPanel {
             shootCounter = 0;
             //英雄机射击
             heroBullets.addAll(heroAircraft.shoot());
-            // TODO 敌机射击
+            
+            // 敌机射击（精英敌机）
+            for (AbstractAircraft enemy : enemyAircrafts) {
+                if (enemy instanceof EliteEnemy) {
+                    enemyBullets.addAll(enemy.shoot());
+                }
+            }
         }
     }
 
@@ -147,7 +179,18 @@ public class Game extends JPanel {
      * 3. 英雄获得补给
      */
     private void crashCheckAction() {
-        // TODO 敌机子弹攻击英雄机
+        // 敌机子弹攻击英雄机
+        for (BaseBullet bullet : enemyBullets) {
+            if (bullet.notValid()) {
+                continue;
+            }
+            if (bullet.crash(heroAircraft) || heroAircraft.crash(bullet)) {
+                // 英雄机被敌机子弹击中
+                heroAircraft.decreaseHp(bullet.getPower());
+                bullet.vanish();
+                System.out.println("英雄机被击中！当前生命值：" + heroAircraft.getHp());
+            }
+        }
 
         // 英雄子弹攻击敌机
         for (BaseBullet bullet : heroBullets) {
@@ -166,8 +209,14 @@ public class Game extends JPanel {
                     enemyAircraft.decreaseHp(bullet.getPower());
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
-                        // TODO 获得分数，产生道具补给
-                        score += 10;
+                        // 获得分数
+                        if (enemyAircraft instanceof MobEnemy) {
+                            score += 10;
+                        } else if (enemyAircraft instanceof EliteEnemy) {
+                            score += 20;
+                            // 精英敌机坠毁时，以一定概率生成道具
+                            generateProp(enemyAircraft);
+                        }
                     }
                 }
                 // 英雄机 与 敌机 相撞，均损毁
@@ -178,7 +227,18 @@ public class Game extends JPanel {
             }
         }
 
-        // Todo: 我方获得道具，道具生效
+        // 英雄机获得道具，道具生效
+        for (AbstractProp prop : props) {
+            if (prop.notValid()) {
+                continue;
+            }
+            if (prop.crash(heroAircraft) || heroAircraft.crash(prop)) {
+                // 英雄机拾取道具
+                prop.activate();
+                applyPropEffect(prop);
+                prop.vanish();
+            }
+        }
 
     }
 
@@ -192,7 +252,66 @@ public class Game extends JPanel {
         enemyBullets.removeIf(AbstractFlyingObject::notValid);
         heroBullets.removeIf(AbstractFlyingObject::notValid);
         enemyAircrafts.removeIf(AbstractFlyingObject::notValid);
-        // Todo: 删除无效道具
+        props.removeIf(AbstractFlyingObject::notValid);
+    }
+    
+    /**
+     * 生成道具（精英敌机坠毁时）
+     * @param enemy 被击毁的敌机
+     */
+    private void generateProp(AbstractAircraft enemy) {
+        if (Math.random() < propDropProbability) {
+            // 随机选择道具类型（加血、火力、超级火力）
+            int propType = (int)(Math.random() * 3);
+            AbstractProp prop;
+            
+            switch (propType) {
+                case 0:
+                    // 加血道具
+                    prop = new BloodProp(enemy.getLocationX(), enemy.getLocationY(), 0, 2);
+                    break;
+                case 1:
+                    // 火力道具
+                    prop = new FireProp(enemy.getLocationX(), enemy.getLocationY(), 0, 2);
+                    break;
+                case 2:
+                    // 超级火力道具
+                    prop = new FirePlusProp(enemy.getLocationX(), enemy.getLocationY(), 0, 2);
+                    break;
+                default:
+                    prop = new BloodProp(enemy.getLocationX(), enemy.getLocationY(), 0, 2);
+            }
+            
+            props.add(prop);
+        }
+    }
+    
+    /**
+     * 应用道具效果
+     * @param prop 被拾取的道具
+     */
+    private void applyPropEffect(AbstractProp prop) {
+        if (prop instanceof BloodProp) {
+            // 加血道具：恢复生命值
+            BloodProp bloodProp = (BloodProp) prop;
+            int currentHp = heroAircraft.getHp();
+            int maxHp = 100; // 英雄机最大生命值
+            int healAmount = bloodProp.getHealAmount();
+            
+            // 恢复生命值，但不超过最大值
+            int newHp = Math.min(currentHp + healAmount, maxHp);
+            heroAircraft.decreaseHp(currentHp - newHp); // 使用负数来恢复生命值
+            
+            System.out.println("加血道具生效：恢复" + healAmount + "点生命值");
+            
+        } else if (prop instanceof FireProp) {
+            // 火力道具：打印提示信息
+            System.out.println("FireSupply active!");
+            
+        } else if (prop instanceof FirePlusProp) {
+            // 超级火力道具：打印提示信息
+            System.out.println("FirePlusSupply active!");
+        }
     }
 
     /**
@@ -231,8 +350,7 @@ public class Game extends JPanel {
         paintImageWithPositionRevised(g, enemyBullets);
         paintImageWithPositionRevised(g, heroBullets);
         paintImageWithPositionRevised(g, enemyAircrafts);
-
-        // Todo: 绘制道具
+        paintImageWithPositionRevised(g, props);
 
         g.drawImage(ImageManager.HERO_IMAGE, heroAircraft.getLocationX() - ImageManager.HERO_IMAGE.getWidth() / 2,
                 heroAircraft.getLocationY() - ImageManager.HERO_IMAGE.getHeight() / 2, null);
