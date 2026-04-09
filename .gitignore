@@ -1,0 +1,101 @@
+# 编译输出
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# IDE文件
+## IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+## Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+## NetBeans
+/nbproject/private/
+/build/
+/dist/
+/nbbuild/
+/nbdist/
+
+## Visual Studio Code
+.vscode/
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 依赖管理
+## Maven
+target/
+
+## Gradle
+.gradle/
+build/
+
+# 本地配置文件
+*.properties
+*.cfg
+*.config
+
+# 包文件
+*.7z
+*.dmg
+*.gz
+*.iso
+*.rar
+*.tar
+
+# 文档文件
+*.doc
+*.docx
+*.pdf
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+
+# 备份文件
+*.bak
+*.backup
+
+# 特定于本项目的忽略项
+## 编译输出目录
+/out/
+
+## 可能存在的测试数据
+test-data/
+
+## 本地开发环境配置
+local.properties
+development.properties
+
+# 大型媒体文件（如果不需要版本控制）
+# *.mp4
+# *.avi
+# *.mov
+# *.wav
+# *.mp3
+
+# 注意：images/ 和 videos/ 目录中的资源文件应该保留在版本控制中
+# 因为它们包含游戏必需的图片和音效资源
