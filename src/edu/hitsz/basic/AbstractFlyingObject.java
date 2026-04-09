@@ -114,7 +114,13 @@ public abstract class AbstractFlyingObject {
     public int getWidth() {
         if (width == -1){
             // 若未设置，则查询图片宽度并设置
-            width = ImageManager.get(this).getWidth();
+            BufferedImage img = ImageManager.get(this);
+            if (img == null) {
+                // 如果找不到图片，打印警告而不是直接崩溃
+                System.err.println("【图片丢失警告】找不到对应图片，类名: " + this.getClass().getName());
+                return 0; 
+            }
+            width = img.getWidth();
         }
         return width;
     }
@@ -122,7 +128,13 @@ public abstract class AbstractFlyingObject {
     public int getHeight() {
         if (height == -1){
             // 若未设置，则查询图片高度并设置
-            height = ImageManager.get(this).getHeight();
+            BufferedImage img = ImageManager.get(this);
+            if (img == null) {
+                // 如果找不到图片，打印警告而不是直接崩溃
+                System.err.println("【图片丢失警告】找不到对应图片，类名: " + this.getClass().getName());
+                return 0; 
+            }
+            height = img.getHeight();
         }
         return height;
     }

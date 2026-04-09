@@ -62,10 +62,10 @@ public class Game extends JPanel {
                 Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight() ,
                 0, 0, 100);
 
-        enemyAircrafts = new LinkedList<>();
-        heroBullets = new LinkedList<>();
-        enemyBullets = new LinkedList<>();
-        props = new LinkedList<>();
+        enemyAircrafts = new CopyOnWriteArrayList<>();
+        heroBullets = new CopyOnWriteArrayList<>();
+        enemyBullets = new CopyOnWriteArrayList<>();
+        props = new CopyOnWriteArrayList<>();
 
         //启动英雄机鼠标监听
         new HeroController(this, heroAircraft);
