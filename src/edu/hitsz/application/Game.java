@@ -42,7 +42,18 @@ public class Game extends JPanel {
     //精英敌机生成周期（比普通敌机更长）
     protected double eliteEnemySpawnCycle = 60;
     private int eliteEnemySpawnCounter = 0;
+
+    //精锐敌机生成周期
+    protected double elitePlusEnemySpawnCycle = 120;
+    private int elitePlusEnemySpawnCounter = 0;
     
+    //王牌敌机生成周期
+    protected double eliteProEnemySpawnCycle = 180;
+    private int eliteProEnemySpawnCounter = 0;
+    
+    //Boss敌机生成周期
+    protected double bossEnemySpawnCycle = 300;
+    private int bossEnemySpawnCounter = 0;
     //道具生成概率（精英敌机坠毁时）
     private final double propDropProbability = 0.3;
 
@@ -86,6 +97,9 @@ public class Game extends JPanel {
 
                 enemySpawnCounter++;
                 eliteEnemySpawnCounter++;
+                elitePlusEnemySpawnCounter++;
+                eliteProEnemySpawnCounter++;
+                bossEnemySpawnCounter++;
                 
                 if (enemySpawnCounter >= enemySpawnCycle) {
                     enemySpawnCounter = 0;
@@ -111,6 +125,48 @@ public class Game extends JPanel {
                                 0,
                                 8,
                                 60
+                        ));
+                    }
+                }
+                
+                if (elitePlusEnemySpawnCounter >= elitePlusEnemySpawnCycle) {
+                    elitePlusEnemySpawnCounter = 0;
+                    // 产生精锐敌机
+                    if (enemyAircrafts.size() < enemyMaxNumber) {
+                        enemyAircrafts.add(new ElitePlusEnemy(
+                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
+                                (int) (Math.random() * Main.WINDOW_HEIGHT * 0.05),
+                                0,
+                                6,
+                                80
+                        ));
+                    }
+                }
+                
+                if (eliteProEnemySpawnCounter >= eliteProEnemySpawnCycle) {
+                    eliteProEnemySpawnCounter = 0;
+                    // 产生王牌敌机
+                    if (enemyAircrafts.size() < enemyMaxNumber) {
+                        enemyAircrafts.add(new EliteProEnemy(
+                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
+                                (int) (Math.random() * Main.WINDOW_HEIGHT * 0.05),
+                                0,
+                                5,
+                                100
+                        ));
+                    }
+                }
+                
+                if (bossEnemySpawnCounter >= bossEnemySpawnCycle) {
+                    bossEnemySpawnCounter = 0;
+                    // 产生Boss敌机
+                    if (enemyAircrafts.size() < enemyMaxNumber) {
+                        enemyAircrafts.add(new BossEnemy(
+                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
+                                (int) (Math.random() * Main.WINDOW_HEIGHT * 0.05),
+                                0,
+                                3,
+                                200
                         ));
                     }
                 }
@@ -147,9 +203,10 @@ public class Game extends JPanel {
             //英雄机射击
             heroBullets.addAll(heroAircraft.shoot());
             
-            // 敌机射击（精英敌机）
+            // 敌机射击（精英敌机、精锐敌机、王牌敌机、Boss敌机）
             for (AbstractAircraft enemy : enemyAircrafts) {
-                if (enemy instanceof EliteEnemy) {
+                if (enemy instanceof EliteEnemy || enemy instanceof ElitePlusEnemy || 
+                    enemy instanceof EliteProEnemy || enemy instanceof BossEnemy) {
                     enemyBullets.addAll(enemy.shoot());
                 }
             }
@@ -216,13 +273,32 @@ public class Game extends JPanel {
                             score += 20;
                             // 精英敌机坠毁时，以一定概率生成道具
                             generateProp(enemyAircraft);
+                        } else if (enemyAircraft instanceof ElitePlusEnemy) {
+                            score += 30;
+                            // 精锐敌机坠毁时，以更高概率生成道具
+                            if (Math.random() < 0.5) {
+                                generateProp(enemyAircraft);
+                            }
+                        } else if (enemyAircraft instanceof EliteProEnemy) {
+                            score += 50;
+                            // 王牌敌机坠毁时，以高概率生成道具
+                            if (Math.random() < 0.7) {
+                                generateProp(enemyAircraft);
+                            }
+                        } else if (enemyAircraft instanceof BossEnemy) {
+                            score += 100;
+                            // Boss敌机坠毁时，必定生成道具
+                            generateProp(enemyAircraft);
                         }
                     }
                 }
                 // 英雄机 与 敌机 相撞，均损毁
                 if (enemyAircraft.crash(heroAircraft) || heroAircraft.crash(enemyAircraft)) {
+                    if (enemyAircraft.notValid()) {
+                        continue; // 跳过已销毁的敌机
+                    }
                     enemyAircraft.vanish();
-                    heroAircraft.decreaseHp(Integer.MAX_VALUE);
+                    heroAircraft.decreaseHp(heroAircraft.getHp()); // 设置为当前生命值，确保归零但不溢出
                 }
             }
         }
@@ -319,10 +395,18 @@ public class Game extends JPanel {
      */
     private void checkResultAction(){
         // 游戏结束检查英雄机是否存活
-        if (heroAircraft.getHp() <= 0) {
-            timer.cancel(); // 取消定时器并终止所有调度任务
+        if (heroAircraft.getHp() <= 0 && !gameOverFlag) {
             gameOverFlag = true;
             System.out.println("Game Over!");
+            // 延迟取消定时器，避免立即停止导致异常
+            TimerTask stopTask = new TimerTask() {
+                @Override
+                public void run() {
+                    timer.cancel();
+                }
+            };
+            Timer stopTimer = new Timer("stop-timer", true);
+            stopTimer.schedule(stopTask, 100); // 延迟100ms停止
         }
     };
 
