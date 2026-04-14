@@ -1,5 +1,6 @@
 package edu.hitsz.aircraft;
 
+import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
 import java.util.LinkedList;
@@ -45,7 +46,7 @@ public class BossEnemy extends AbstractEnemy {
         this.locationX += this.speedX;
         
         // 边界检测和反弹
-        if (this.locationX <= 0 || this.locationX >= 512) {
+        if (this.locationX <= 0 || this.locationX >= Main.WINDOW_WIDTH) {
             this.speedX = -this.speedX;
         }
         

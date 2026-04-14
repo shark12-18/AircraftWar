@@ -1,0 +1,118 @@
+@startuml FactoryMethod
+'工厂方法模式 - 敌机创建
+
+title 工厂方法模式 —— 敌机创建
+
+' ========== 抽象工厂（创建者） ==========
+interface EnemyFactory {
+    + {abstract} createEnemy(): AbstractEnemy
+}
+
+' ========== 具体工厂（具体创建者） ==========
+class MobEnemyFactory {
+    + createEnemy(): AbstractEnemy
+}
+
+class EliteEnemyFactory {
+    + createEnemy(): AbstractEnemy
+}
+
+class ElitePlusEnemyFactory {
+    + createEnemy(): AbstractEnemy
+}
+
+class EliteProEnemyFactory {
+    + createEnemy(): AbstractEnemy
+}
+
+class BossEnemyFactory {
+    + createEnemy(): AbstractEnemy
+}
+
+' ========== 抽象产品 ==========
+abstract class AbstractEnemy {
+    # score:int
+    + AbstractEnemy(int locationX, int locationY, int speedX, int speedY, int hp, int score)
+    + getScore():int
+    + {abstract} shoot():List<BaseBullet>
+    + {abstract} forward():void
+}
+
+' ========== 具体产品 ==========
+class MobEnemy {
+    + MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+}
+
+class EliteEnemy {
+    - shootFrequency:int
+    - power:int
+    + EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+}
+
+class ElitePlusEnemy {
+    - shootFrequency:int
+    - power:int
+    - doubleShoot:boolean
+    + ElitePlusEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+}
+
+class EliteProEnemy {
+    - shootFrequency:int
+    - power:int
+    - specialAbilityActive:boolean
+    + EliteProEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+}
+
+class BossEnemy {
+    - shootFrequency:int
+    - power:int
+    - phase:int
+    + BossEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+    + changePhase(int newPhase):void
+}
+
+' ========== 客户端 ==========
+class Game {
+    - mobEnemyFactory: EnemyFactory
+    - eliteEnemyFactory: EnemyFactory
+    - elitePlusEnemyFactory: EnemyFactory
+    - eliteProEnemyFactory: EnemyFactory
+    - bossEnemyFactory: EnemyFactory
+}
+
+' ========== 关系 ==========
+' 工厂接口实现关系
+EnemyFactory <|.. MobEnemyFactory
+EnemyFactory <|.. EliteEnemyFactory
+EnemyFactory <|.. ElitePlusEnemyFactory
+EnemyFactory <|.. EliteProEnemyFactory
+EnemyFactory <|.. BossEnemyFactory
+
+' 产品继承关系
+AbstractEnemy <|-- MobEnemy
+AbstractEnemy <|-- EliteEnemy
+AbstractEnemy <|-- ElitePlusEnemy
+AbstractEnemy <|-- EliteProEnemy
+AbstractEnemy <|-- BossEnemy
+
+' 具体工厂创建具体产品（依赖关系）
+MobEnemyFactory ..> MobEnemy : <<creates>>
+EliteEnemyFactory ..> EliteEnemy : <<creates>>
+ElitePlusEnemyFactory ..> ElitePlusEnemy : <<creates>>
+EliteProEnemyFactory ..> EliteProEnemy : <<creates>>
+BossEnemyFactory ..> BossEnemy : <<creates>>
+
+' 客户端使用工厂接口
+Game ..> EnemyFactory : <<uses>>
+
+@enduml

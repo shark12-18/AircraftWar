@@ -1,5 +1,6 @@
 package edu.hitsz.aircraft;
 
+import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
 import java.util.LinkedList;
@@ -52,10 +53,15 @@ public class EliteProEnemy extends AbstractEnemy {
         }
         
         // 边界检测和反弹
-        if (this.locationX <= 0 || this.locationX >= 512) {
+        if (this.locationX <= 0 || this.locationX >= Main.WINDOW_WIDTH) {
             this.speedX = -this.speedX;
         }
         
+        // 飞出屏幕下方则消失
+        if (this.locationY >= Main.WINDOW_HEIGHT) {
+            vanish();
+        }
+
         // 更新特殊能力冷却
         if (abilityCooldown > 0) {
             abilityCooldown--;
@@ -65,27 +71,19 @@ public class EliteProEnemy extends AbstractEnemy {
     @Override
     public List<BaseBullet> shoot() {
         List<BaseBullet> bullets = new LinkedList<>();
-        
+
         int bulletX = this.getLocationX();
         int bulletY = this.getLocationY() + this.getHeight() / 2;
         int bulletSpeedY = this.getSpeedY() + 5;
-        
-        if (specialAbilityActive) {
-            // 特殊能力激活时：三发散射
-            BaseBullet bullet1 = new EnemyBullet(bulletX - 15, bulletY, -2, bulletSpeedY, power);
-            BaseBullet bullet2 = new EnemyBullet(bulletX, bulletY, 0, bulletSpeedY, power);
-            BaseBullet bullet3 = new EnemyBullet(bulletX + 15, bulletY, 2, bulletSpeedY, power);
-            bullets.add(bullet1);
-            bullets.add(bullet2);
-            bullets.add(bullet3);
-        } else {
-            // 普通射击：双发
-            BaseBullet bullet1 = new EnemyBullet(bulletX - 10, bulletY, 0, bulletSpeedY, power);
-            BaseBullet bullet2 = new EnemyBullet(bulletX + 10, bulletY, 0, bulletSpeedY, power);
-            bullets.add(bullet1);
-            bullets.add(bullet2);
-        }
-        
+
+        // 王牌敌机始终采用扇形散射弹道，单次发射3颗子弹
+        BaseBullet bullet1 = new EnemyBullet(bulletX - 15, bulletY, -2, bulletSpeedY, power);
+        BaseBullet bullet2 = new EnemyBullet(bulletX, bulletY, 0, bulletSpeedY, power);
+        BaseBullet bullet3 = new EnemyBullet(bulletX + 15, bulletY, 2, bulletSpeedY, power);
+        bullets.add(bullet1);
+        bullets.add(bullet2);
+        bullets.add(bullet3);
+
         return bullets;
     }
 

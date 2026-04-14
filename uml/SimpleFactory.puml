@@ -1,0 +1,83 @@
+@startuml SimpleFactory
+'简单工厂模式 - 道具创建
+
+title 简单工厂模式 —— 道具创建
+
+' ========== 简单工厂类 ==========
+class PropFactory {
+    + {static} createProp(PropType type, int locationX, int locationY): AbstractProp
+}
+
+enum "PropFactory.PropType" as PropType {
+    BLOOD
+    FIRE
+    FIRE_PLUS
+    BOMB
+    FREEZE
+}
+
+' ========== 抽象产品 ==========
+abstract class AbstractProp {
+    # effectDuration:int
+    + AbstractProp(int locationX, int locationY, int speedX, int speedY, int effectDuration)
+    + {abstract} activate():void
+    + getEffectDuration():int
+}
+
+' ========== 具体产品 ==========
+class BloodProp {
+    - healAmount:int
+    + BloodProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+class FireProp {
+    - powerBoost:int
+    + FireProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+class FirePlusProp {
+    - powerBoost:int
+    - additionalShots:int
+    + FirePlusProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+class BombProp {
+    - explosionRadius:int
+    - explosionDamage:int
+    + BombProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+class FreezeProp {
+    - freezeDuration:int
+    - speedReduction:int
+    + FreezeProp(int locationX, int locationY, int speedX, int speedY)
+    + activate():void
+}
+
+' ========== 客户端 ==========
+class Game {
+    - generateProp(AbstractAircraft enemy):void
+}
+
+' ========== 关系 ==========
+' 继承关系
+AbstractProp <|-- BloodProp
+AbstractProp <|-- FireProp
+AbstractProp <|-- FirePlusProp
+AbstractProp <|-- BombProp
+AbstractProp <|-- FreezeProp
+
+' 工厂内嵌枚举
+PropFactory +-- PropType
+
+' 工厂创建产品（依赖关系）
+PropFactory ..> AbstractProp : <<creates>>
+
+' 客户端使用工厂
+Game ..> PropFactory : <<uses>>
+
+@enduml

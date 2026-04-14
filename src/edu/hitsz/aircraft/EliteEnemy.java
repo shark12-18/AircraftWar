@@ -1,5 +1,6 @@
 package edu.hitsz.aircraft;
 
+import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
 import java.util.LinkedList;
@@ -35,6 +36,10 @@ public class EliteEnemy extends AbstractEnemy {
     public void forward() {
         // 精英敌机直线向下移动
         this.locationY += this.speedY;
+        // 飞出屏幕下方则消失
+        if (this.locationY >= Main.WINDOW_HEIGHT) {
+            vanish();
+        }
     }
 
     @Override

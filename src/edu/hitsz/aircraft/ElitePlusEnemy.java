@@ -1,5 +1,6 @@
 package edu.hitsz.aircraft;
 
+import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
 import java.util.LinkedList;
@@ -40,10 +41,14 @@ public class ElitePlusEnemy extends AbstractEnemy {
         // 精锐敌机可能带有横向移动
         this.locationX += this.speedX;
         this.locationY += this.speedY;
-        
-        // 边界检测
-        if (this.locationX <= 0 || this.locationX >= 512) {
+
+        // 横向边界检测和反弹
+        if (this.locationX <= 0 || this.locationX >= Main.WINDOW_WIDTH) {
             this.speedX = -this.speedX;
+        }
+        // 飞出屏幕下方则消失
+        if (this.locationY >= Main.WINDOW_HEIGHT) {
+            vanish();
         }
     }
 
