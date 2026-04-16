@@ -16,18 +16,31 @@ public class CircleShootStrategy implements ShootStrategy {
     @Override
     public List<BaseBullet> shoot(int x, int y, int baseSpeedY, int direction, int power) {
         List<BaseBullet> bullets = new LinkedList<>();
-        int bulletCount = 20;
+        int bulletCount = 20; // 增加到20颗子弹，形成更完美的圆形
+        double baseSpeed = 6.0; // 降低基础速度，让圆形更明显
 
         for (int i = 0; i < bulletCount; i++) {
+            // 计算360度均匀分布的角度
             double angle = 2 * Math.PI * i / bulletCount;
-            int speedX = (int) (Math.cos(angle) * 5);
-            int speedY = (int) (Math.sin(angle) * 5) + baseSpeedY;
+            
+            // 计算标准化的速度分量（保持完美的圆形）
+            double speedX = Math.cos(angle) * baseSpeed;
+            double speedY = Math.sin(angle) * baseSpeed;
+            
+            // 添加基础速度，但不破坏圆形（使用向量加法）
+            if (direction < 0) {
+                // 英雄机向上射击：圆形整体向上移动
+                speedY -= 3; // 较小的基础速度，保持圆形
+            } else {
+                // 敌机向下射击：圆形整体向下移动
+                speedY += 3; // 较小的基础速度，保持圆形
+            }
 
             BaseBullet bullet;
             if (direction < 0) {
-                bullet = new HeroBullet(x, y, speedX, speedY, power);
+                bullet = new HeroBullet(x, y, (int) Math.round(speedX), (int) Math.round(speedY), power);
             } else {
-                bullet = new EnemyBullet(x, y, speedX, speedY, power);
+                bullet = new EnemyBullet(x, y, (int) Math.round(speedX), (int) Math.round(speedY), power);
             }
             bullets.add(bullet);
         }
