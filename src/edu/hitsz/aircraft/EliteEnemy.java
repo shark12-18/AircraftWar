@@ -2,8 +2,7 @@ package edu.hitsz.aircraft;
 
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
-import edu.hitsz.bullet.EnemyBullet;
-import java.util.LinkedList;
+import edu.hitsz.strategy.DirectShootStrategy;
 import java.util.List;
 
 /**
@@ -27,9 +26,10 @@ public class EliteEnemy extends AbstractEnemy {
      * @param hp 生命值
      */
     public EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
-        super(locationX, locationY, speedX, speedY, hp, 20); // 精英敌机得分为20
-        this.shootFrequency = 60; // 每60帧射击一次
-        this.power = 10; // 子弹威力为10
+        super(locationX, locationY, speedX, speedY, hp, 20);
+        this.shootFrequency = 60;
+        this.power = 10;
+        this.shootStrategy = new DirectShootStrategy();
     }
 
     @Override
@@ -44,17 +44,7 @@ public class EliteEnemy extends AbstractEnemy {
 
     @Override
     public List<BaseBullet> shoot() {
-        List<BaseBullet> bullets = new LinkedList<>();
-        
-        // 向下发射一颗子弹
-        int bulletX = this.getLocationX();
-        int bulletY = this.getLocationY() + this.getHeight() / 2;
-        int bulletSpeedY = this.getSpeedY() + 5; // 子弹速度比敌机快
-        
-        BaseBullet bullet = new EnemyBullet(bulletX, bulletY, 0, bulletSpeedY, power);
-        bullets.add(bullet);
-        
-        return bullets;
+        return shootStrategy.shoot(this.getLocationX(), this.getLocationY(), this.getSpeedY(), 1, power);
     }
 
     /**

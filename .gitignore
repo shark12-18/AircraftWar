@@ -81,7 +81,7 @@ build/
 
 # 特定于本项目的忽略项
 ## 编译输出目录
-/out/
+/out/production/
 
 ## 可能存在的测试数据
 test-data/

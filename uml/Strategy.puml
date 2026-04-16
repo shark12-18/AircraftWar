@@ -1,0 +1,96 @@
+@startuml Strategy
+'策略模式 - 弹道系统
+
+title 策略模式 —— 弹道系统
+
+' ========== 抽象策略 ==========
+interface ShootStrategy {
+    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+}
+
+' ========== 具体策略 ==========
+class NoShootStrategy {
+    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+}
+
+class DirectShootStrategy {
+    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+}
+
+class DoubleDirectShootStrategy {
+    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+}
+
+class SpreadShootStrategy {
+    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+}
+
+class CircleShootStrategy {
+    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+}
+
+' ========== 上下文（Context） ==========
+abstract class AbstractAircraft {
+    # shootStrategy: ShootStrategy
+    + setShootStrategy(ShootStrategy strategy): void
+    + getShootStrategy(): ShootStrategy
+    + {abstract} shoot(): List<BaseBullet>
+}
+
+class HeroAircraft {
+    - power: int
+    + shoot(): List<BaseBullet>
+}
+
+class MobEnemy {
+    + shoot(): List<BaseBullet>
+}
+
+class EliteEnemy {
+    - power: int
+    + shoot(): List<BaseBullet>
+}
+
+class ElitePlusEnemy {
+    - power: int
+    + shoot(): List<BaseBullet>
+}
+
+class EliteProEnemy {
+    - power: int
+    + shoot(): List<BaseBullet>
+}
+
+class BossEnemy {
+    - power: int
+    + shoot(): List<BaseBullet>
+}
+
+' ========== 关系 ==========
+' 策略接口实现
+ShootStrategy <|.. NoShootStrategy
+ShootStrategy <|.. DirectShootStrategy
+ShootStrategy <|.. DoubleDirectShootStrategy
+ShootStrategy <|.. SpreadShootStrategy
+ShootStrategy <|.. CircleShootStrategy
+
+' 上下文持有策略
+AbstractAircraft o--> ShootStrategy : shootStrategy
+
+' 飞机继承
+AbstractAircraft <|-- HeroAircraft
+AbstractAircraft <|-- MobEnemy
+AbstractAircraft <|-- EliteEnemy
+AbstractAircraft <|-- ElitePlusEnemy
+AbstractAircraft <|-- EliteProEnemy
+AbstractAircraft <|-- BossEnemy
+
+' 默认策略分配（注释说明）
+note right of HeroAircraft : 默认 DirectShootStrategy\n拾取火力道具 → SpreadShootStrategy\n拾取超级火力 → CircleShootStrategy
+note right of MobEnemy : NoShootStrategy
+note right of EliteEnemy : DirectShootStrategy
+note right of ElitePlusEnemy : DoubleDirectShootStrategy
+note right of EliteProEnemy : SpreadShootStrategy
+note right of BossEnemy : CircleShootStrategy
+
+@enduml

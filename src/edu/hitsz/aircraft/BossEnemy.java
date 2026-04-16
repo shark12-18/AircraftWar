@@ -3,6 +3,7 @@ package edu.hitsz.aircraft;
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
+import edu.hitsz.strategy.CircleShootStrategy;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,11 +34,12 @@ public class BossEnemy extends AbstractEnemy {
      * @param hp 生命值
      */
     public BossEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
-        super(locationX, locationY, speedX, speedY, hp, 100); // Boss敌机得分为100
-        this.shootFrequency = 20; // 每20帧射击一次
-        this.power = 30; // 子弹威力为30
-        this.phase = 1; // 初始阶段为1
+        super(locationX, locationY, speedX, speedY, hp, 100);
+        this.shootFrequency = 20;
+        this.power = 30;
+        this.phase = 1;
         this.specialAttackCooldown = 0;
+        this.shootStrategy = new CircleShootStrategy();
     }
 
     @Override
@@ -70,42 +72,8 @@ public class BossEnemy extends AbstractEnemy {
 
     @Override
     public List<BaseBullet> shoot() {
-        List<BaseBullet> bullets = new LinkedList<>();
-        
-        int bulletX = this.getLocationX();
-        int bulletY = this.getLocationY() + this.getHeight() / 2;
-        int bulletSpeedY = this.getSpeedY() + 5;
-        
-        switch (phase) {
-            case 1:
-                // 阶段1：三发直线射击
-                bullets.add(new EnemyBullet(bulletX - 20, bulletY, 0, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX, bulletY, 0, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX + 20, bulletY, 0, bulletSpeedY, power));
-                break;
-                
-            case 2:
-                // 阶段2：五发散射
-                bullets.add(new EnemyBullet(bulletX - 30, bulletY, -3, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX - 15, bulletY, -1, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX, bulletY, 0, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX + 15, bulletY, 1, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX + 30, bulletY, 3, bulletSpeedY, power));
-                break;
-                
-            case 3:
-                // 阶段3：七发全方位射击
-                bullets.add(new EnemyBullet(bulletX - 30, bulletY, -4, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX - 20, bulletY, -2, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX - 10, bulletY, -1, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX, bulletY, 0, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX + 10, bulletY, 1, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX + 20, bulletY, 2, bulletSpeedY, power));
-                bullets.add(new EnemyBullet(bulletX + 30, bulletY, 4, bulletSpeedY, power));
-                break;
-        }
-        
-        return bullets;
+        // Boss敌机使用环射策略，单次发射20颗子弹
+        return shootStrategy.shoot(this.getLocationX(), this.getLocationY(), this.getSpeedY(), 1, power);
     }
 
     /**

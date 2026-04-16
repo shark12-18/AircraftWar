@@ -5,6 +5,8 @@ import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.factory.*;
 import edu.hitsz.prop.*;
+import edu.hitsz.strategy.CircleShootStrategy;
+import edu.hitsz.strategy.SpreadShootStrategy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,9 +49,9 @@ public class Game extends JPanel {
     protected double enemySpawnCycle = 20;
     private int enemySpawnCounter = 0;
 
-    //Boss敌机生成：由分数阈值触发（暂用周期方式）
-    protected double bossEnemySpawnCycle = 300;
-    private int bossEnemySpawnCounter = 0;
+    //Boss敌机生成：由分数阈值触发
+    private int bossScoreThreshold = 500;
+    private int lastBossScore = 0;
     //道具生成概率（精英敌机坠毁时）
     private final double propDropProbability = 0.3;
 
@@ -92,13 +94,11 @@ public class Game extends JPanel {
             public void run() {
 
                 enemySpawnCounter++;
-                bossEnemySpawnCounter++;
 
                 // 每隔固定周期，随机产生一种敌机（Boss除外），且只生成一架
                 if (enemySpawnCounter >= enemySpawnCycle) {
                     enemySpawnCounter = 0;
                     if (enemyAircrafts.size() < enemyMaxNumber) {
-                        // 随机选择一种敌机类型（普通、精英、精锐、王牌）
                         double rand = Math.random();
                         EnemyFactory factory;
                         if (rand < 0.4) {
@@ -114,12 +114,10 @@ public class Game extends JPanel {
                     }
                 }
 
-                // Boss敌机按独立周期生成
-                if (bossEnemySpawnCounter >= bossEnemySpawnCycle) {
-                    bossEnemySpawnCounter = 0;
-                    if (enemyAircrafts.size() < enemyMaxNumber) {
-                        enemyAircrafts.add(bossEnemyFactory.createEnemy());
-                    }
+                // Boss敌机：玩家分数达到阈值时触发生成
+                if (score - lastBossScore >= bossScoreThreshold) {
+                    lastBossScore += bossScoreThreshold;
+                    enemyAircrafts.add(bossEnemyFactory.createEnemy());
                 }
 
                 // 飞机发射子弹
@@ -151,15 +149,12 @@ public class Game extends JPanel {
         shootCounter++;
         if (shootCounter >= shootCycle) {
             shootCounter = 0;
-            //英雄机射击
+            // 英雄机射击
             heroBullets.addAll(heroAircraft.shoot());
-            
-            // 敌机射击（精英敌机、精锐敌机、王牌敌机、Boss敌机）
+
+            // 所有敌机统一调用shoot()（不射击的敌机通过NoShootStrategy返回空列表）
             for (AbstractAircraft enemy : enemyAircrafts) {
-                if (enemy instanceof EliteEnemy || enemy instanceof ElitePlusEnemy || 
-                    enemy instanceof EliteProEnemy || enemy instanceof BossEnemy) {
-                    enemyBullets.addAll(enemy.shoot());
-                }
+                enemyBullets.addAll(enemy.shoot());
             }
         }
     }
@@ -239,8 +234,10 @@ public class Game extends JPanel {
                                 generateProp(enemyAircraft);
                             }
                         } else if (enemyAircraft instanceof BossEnemy) {
-                            // Boss敌机：必定掉落道具
-                            generateProp(enemyAircraft);
+                            // Boss敌机：必定掉落3个道具
+                            for (int i = 0; i < 3; i++) {
+                                generateProp(enemyAircraft);
+                            }
                         }
                         // 普通敌机不掉落道具
                     }
@@ -340,12 +337,14 @@ public class Game extends JPanel {
             System.out.println("加血道具生效：恢复" + healAmount + "点生命值");
 
         } else if (prop instanceof FireProp) {
-            // 火力道具：打印提示信息
+            // 火力道具：切换英雄机弹道为散射
             System.out.println("FireSupply active!");
+            heroAircraft.setShootStrategy(new SpreadShootStrategy());
 
         } else if (prop instanceof FirePlusProp) {
-            // 超级火力道具：打印提示信息
+            // 超级火力道具：切换英雄机弹道为环射
             System.out.println("FirePlusSupply active!");
+            heroAircraft.setShootStrategy(new CircleShootStrategy());
 
         } else if (prop instanceof BombProp) {
             // 炸弹道具：清除所有敌机和敌机子弹

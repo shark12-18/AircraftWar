@@ -2,8 +2,7 @@ package edu.hitsz.aircraft;
 
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
-import edu.hitsz.bullet.EnemyBullet;
-import java.util.LinkedList;
+import edu.hitsz.strategy.DoubleDirectShootStrategy;
 import java.util.List;
 
 /**
@@ -30,10 +29,11 @@ public class ElitePlusEnemy extends AbstractEnemy {
      * @param hp 生命值
      */
     public ElitePlusEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
-        super(locationX, locationY, speedX, speedY, hp, 30); // 精锐敌机得分为30
-        this.shootFrequency = 45; // 每45帧射击一次
-        this.power = 15; // 子弹威力为15
-        this.doubleShoot = true; // 双发模式
+        super(locationX, locationY, speedX, speedY, hp, 30);
+        this.shootFrequency = 45;
+        this.power = 15;
+        this.doubleShoot = true;
+        this.shootStrategy = new DoubleDirectShootStrategy();
     }
 
     @Override
@@ -54,25 +54,7 @@ public class ElitePlusEnemy extends AbstractEnemy {
 
     @Override
     public List<BaseBullet> shoot() {
-        List<BaseBullet> bullets = new LinkedList<>();
-        
-        int bulletX = this.getLocationX();
-        int bulletY = this.getLocationY() + this.getHeight() / 2;
-        int bulletSpeedY = this.getSpeedY() + 5;
-        
-        if (doubleShoot) {
-            // 双发模式：发射两颗子弹
-            BaseBullet bullet1 = new EnemyBullet(bulletX - 10, bulletY, 0, bulletSpeedY, power);
-            BaseBullet bullet2 = new EnemyBullet(bulletX + 10, bulletY, 0, bulletSpeedY, power);
-            bullets.add(bullet1);
-            bullets.add(bullet2);
-        } else {
-            // 单发模式
-            BaseBullet bullet = new EnemyBullet(bulletX, bulletY, 0, bulletSpeedY, power);
-            bullets.add(bullet);
-        }
-        
-        return bullets;
+        return shootStrategy.shoot(this.getLocationX(), this.getLocationY(), this.getSpeedY(), 1, power);
     }
 
     /**

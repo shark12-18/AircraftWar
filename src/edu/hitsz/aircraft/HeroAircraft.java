@@ -1,7 +1,7 @@
 package edu.hitsz.aircraft;
 
 import edu.hitsz.bullet.BaseBullet;
-import edu.hitsz.bullet.HeroBullet;
+import edu.hitsz.strategy.DirectShootStrategy;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +32,7 @@ public class HeroAircraft extends AbstractAircraft {
      */
     private HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp) {
         super(locationX, locationY, speedX, speedY, hp);
+        this.shootStrategy = new DirectShootStrategy(); // 默认单排直射
     }
     
     /**
@@ -109,29 +110,12 @@ public class HeroAircraft extends AbstractAircraft {
     }
 
     @Override
-    /**
-     * 通过射击产生子弹
-     * @return 射击出的子弹List
-     */
     public List<BaseBullet> shoot() {
-        // 只有存活的英雄机才能射击
         if (!isAlive()) {
             return new LinkedList<>();
         }
-        
-        List<BaseBullet> res = new LinkedList<>();
-        int x = this.getLocationX();
-        int y = this.getLocationY() + direction*2;
-        int speedX = 0;
-        int speedY = this.getSpeedY() + direction*5;
-        BaseBullet bullet;
-        for(int i=0; i<shootNum; i++){
-            // 子弹发射位置相对飞机位置向前偏移
-            // 多个子弹横向分散
-            bullet = new HeroBullet(x + (i*2 - shootNum + 1)*10, y, speedX, speedY, power);
-            res.add(bullet);
-        }
-        return res;
+        // 委托给射击策略（direction=-1表示向上发射）
+        return shootStrategy.shoot(this.getLocationX(), this.getLocationY(), this.getSpeedY(), -1, power);
     }
     
     /**

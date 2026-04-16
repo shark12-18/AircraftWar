@@ -1,0 +1,32 @@
+@startuml Singleton
+'单例模式 - 英雄机
+
+title 单例模式 —— 英雄机 HeroAircraft
+
+class HeroAircraft {
+    - {static} instance: HeroAircraft
+    - shootNum: int
+    - power: int
+    - direction: int
+    - isAlive: boolean
+
+    - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
+    + {static} getInstance(): HeroAircraft
+    + {static} getInstance(int locationX, int locationY, int speedX, int speedY, int hp): HeroAircraft
+    + {static} resetInstance(): void
+    + forward(): void
+    + shoot(): List<BaseBullet>
+    + isAlive(): boolean
+    + decreaseHp(int decrease): void
+}
+
+HeroAircraft --> HeroAircraft : <<creates>>\n返回唯一实例
+
+note right of HeroAircraft
+  <b><<Singleton>></b>
+  保证全局只有一个英雄机实例。
+  构造函数私有，外部只能通过
+  getInstance() 获取唯一实例。
+end note
+
+@enduml

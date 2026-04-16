@@ -2,8 +2,7 @@ package edu.hitsz.aircraft;
 
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
-import edu.hitsz.bullet.EnemyBullet;
-import java.util.LinkedList;
+import edu.hitsz.strategy.SpreadShootStrategy;
 import java.util.List;
 
 /**
@@ -33,11 +32,12 @@ public class EliteProEnemy extends AbstractEnemy {
      * @param hp 生命值
      */
     public EliteProEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
-        super(locationX, locationY, speedX, speedY, hp, 50); // 王牌敌机得分为50
-        this.shootFrequency = 30; // 每30帧射击一次
-        this.power = 20; // 子弹威力为20
+        super(locationX, locationY, speedX, speedY, hp, 50);
+        this.shootFrequency = 30;
+        this.power = 20;
         this.specialAbilityActive = false;
         this.abilityCooldown = 0;
+        this.shootStrategy = new SpreadShootStrategy();
     }
 
     @Override
@@ -70,21 +70,7 @@ public class EliteProEnemy extends AbstractEnemy {
 
     @Override
     public List<BaseBullet> shoot() {
-        List<BaseBullet> bullets = new LinkedList<>();
-
-        int bulletX = this.getLocationX();
-        int bulletY = this.getLocationY() + this.getHeight() / 2;
-        int bulletSpeedY = this.getSpeedY() + 5;
-
-        // 王牌敌机始终采用扇形散射弹道，单次发射3颗子弹
-        BaseBullet bullet1 = new EnemyBullet(bulletX - 15, bulletY, -2, bulletSpeedY, power);
-        BaseBullet bullet2 = new EnemyBullet(bulletX, bulletY, 0, bulletSpeedY, power);
-        BaseBullet bullet3 = new EnemyBullet(bulletX + 15, bulletY, 2, bulletSpeedY, power);
-        bullets.add(bullet1);
-        bullets.add(bullet2);
-        bullets.add(bullet3);
-
-        return bullets;
+        return shootStrategy.shoot(this.getLocationX(), this.getLocationY(), this.getSpeedY(), 1, power);
     }
 
     /**
