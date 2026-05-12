@@ -5,20 +5,19 @@ import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.factory.*;
 import edu.hitsz.prop.*;
-import edu.hitsz.score.ScoreDao;
-import edu.hitsz.score.ScoreDaoImpl;
-import edu.hitsz.score.ScoreRecord;
 import edu.hitsz.strategy.CircleShootStrategy;
+import edu.hitsz.strategy.DirectShootStrategy;
+import edu.hitsz.strategy.ShootStrategy;
 import edu.hitsz.strategy.SpreadShootStrategy;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 游戏主面板，游戏启动
@@ -38,9 +37,10 @@ public class Game extends JPanel {
     private final List<BaseBullet> heroBullets;
     private final List<BaseBullet> enemyBullets;
     private final List<AbstractProp> props;
-    private final ScoreDao scoreDao = new ScoreDaoImpl();
-    private static final String DEFAULT_DIFFICULTY = "normal";
-    private static final String DEFAULT_PLAYER_NAME = "Player";
+    private final Difficulty difficulty;
+    private final BufferedImage backgroundImage;
+    private final AudioManager audioManager = new AudioManager();
+    private final AtomicInteger fireEffectVersion = new AtomicInteger(0);
 
     //敌机工厂实例（工厂方法模式）
     private final EnemyFactory mobEnemyFactory = new MobEnemyFactory();
@@ -73,6 +73,12 @@ public class Game extends JPanel {
     private boolean gameOverFlag = false;
 
     public Game() {
+        this(Difficulty.NORMAL);
+    }
+
+    public Game(Difficulty difficulty) {
+        this.difficulty = difficulty;
+        this.backgroundImage = ImageManager.getBackground(difficulty);
         heroAircraft = HeroAircraft.getInstance(
                 Main.WINDOW_WIDTH / 2,
                 Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight() ,
@@ -94,6 +100,7 @@ public class Game extends JPanel {
      * 游戏启动入口，执行游戏逻辑
      */
     public void action() {
+        audioManager.startBackgroundMusic();
 
         // 定时任务：绘制、对象产生、碰撞判定、及结束判定
         TimerTask task = new TimerTask() {
@@ -125,6 +132,7 @@ public class Game extends JPanel {
                 if (score - lastBossScore >= bossScoreThreshold) {
                     lastBossScore += bossScoreThreshold;
                     enemyAircrafts.add(bossEnemyFactory.createEnemy());
+                    audioManager.startBossMusic();
                 }
 
                 // 飞机发射子弹
@@ -222,6 +230,7 @@ public class Game extends JPanel {
                     continue;
                 }
                 if (enemyAircraft.crash(bullet)) {
+                    audioManager.playBulletHit();
                     // 敌机撞击到英雄机子弹
                     // 敌机损失一定生命值
                     enemyAircraft.decreaseHp(bullet.getPower());
@@ -253,6 +262,7 @@ public class Game extends JPanel {
                             for (int i = 0; i < 3; i++) {
                                 generateProp(enemyAircraft);
                             }
+                            audioManager.stopBossMusic();
                         }
                         // 普通敌机不掉落道具
                     }
@@ -276,6 +286,7 @@ public class Game extends JPanel {
             if (prop.crash(heroAircraft) || heroAircraft.crash(prop)) {
                 // 英雄机拾取道具
                 prop.activate();
+                audioManager.playGetSupply();
                 applyPropEffect(prop);
                 prop.vanish();
             }
@@ -354,21 +365,33 @@ public class Game extends JPanel {
         } else if (prop instanceof FireProp) {
             // 火力道具：切换英雄机弹道为散射
             System.out.println("FireSupply active!");
-            heroAircraft.setShootStrategy(new SpreadShootStrategy());
+            startFireEffect(new SpreadShootStrategy(), prop.getEffectDuration());
 
         } else if (prop instanceof FirePlusProp) {
             // 超级火力道具：切换英雄机弹道为环射
             System.out.println("FirePlusSupply active!");
-            heroAircraft.setShootStrategy(new CircleShootStrategy());
+            startFireEffect(new CircleShootStrategy(), prop.getEffectDuration());
 
         } else if (prop instanceof BombProp) {
             // 炸弹道具：清除所有敌机和敌机子弹
             System.out.println("BombSupply active!");
+            audioManager.playBombExplosion();
 
         } else if (prop instanceof FreezeProp) {
             // 冰冻道具：冻结敌机
             System.out.println("FreezeSupply active!");
         }
+    }
+
+    private void startFireEffect(ShootStrategy strategy, int effectDuration) {
+        int version = fireEffectVersion.incrementAndGet();
+        heroAircraft.setShootStrategy(strategy);
+        long durationMillis = Math.max(1, effectDuration) * (long) timeInterval;
+        Thread task = new Thread(
+                new FirePowerTask(heroAircraft, fireEffectVersion, version, durationMillis),
+                "fire-power-task");
+        task.setDaemon(true);
+        task.start();
     }
 
     /**
@@ -379,7 +402,10 @@ public class Game extends JPanel {
         if (heroAircraft.getHp() <= 0 && !gameOverFlag) {
             gameOverFlag = true;
             System.out.println("Game Over!");
-            saveAndPrintScoreRecord();
+            heroAircraft.setShootStrategy(new DirectShootStrategy());
+            audioManager.stopAll();
+            audioManager.playGameOver();
+            showScoreBoard();
             // 延迟取消定时器，避免立即停止导致异常
             TimerTask stopTask = new TimerTask() {
                 @Override
@@ -392,20 +418,8 @@ public class Game extends JPanel {
         }
     };
 
-    private void saveAndPrintScoreRecord() {
-        ScoreRecord record = new ScoreRecord(DEFAULT_DIFFICULTY, DEFAULT_PLAYER_NAME, score, LocalDateTime.now());
-        scoreDao.addRecord(record);
-        List<ScoreRecord> records = scoreDao.getRecords(DEFAULT_DIFFICULTY);
-
-        System.out.println("****************");
-        System.out.println("排行榜");
-        System.out.println("****************");
-        System.out.println("排名\t玩家名\t得分\t记录时间");
-        for (int i = 0; i < records.size(); i++) {
-            ScoreRecord item = records.get(i);
-            System.out.printf("%d\t%s\t%d\t%s%n", i + 1, item.getPlayerName(), item.getScore(), item.getTimeText());
-        }
-        System.out.println("****************");
+    private void showScoreBoard() {
+        SwingUtilities.invokeLater(() -> new ScoreBoardFrame(difficulty, score).setVisible(true));
     }
 
     //***********************
@@ -420,8 +434,8 @@ public class Game extends JPanel {
         super.paint(g);
 
         // 绘制背景,图片滚动
-        g.drawImage(ImageManager.BACKGROUND_IMAGE, 0, this.backGroundTop - Main.WINDOW_HEIGHT, null);
-        g.drawImage(ImageManager.BACKGROUND_IMAGE, 0, this.backGroundTop, null);
+        g.drawImage(backgroundImage, 0, this.backGroundTop - Main.WINDOW_HEIGHT, null);
+        g.drawImage(backgroundImage, 0, this.backGroundTop, null);
         this.backGroundTop += 1;
         if (this.backGroundTop == Main.WINDOW_HEIGHT) {
             this.backGroundTop = 0;

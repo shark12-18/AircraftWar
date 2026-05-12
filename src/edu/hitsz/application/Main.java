@@ -1,5 +1,7 @@
 package edu.hitsz.application;
 
+import edu.hitsz.aircraft.HeroAircraft;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,6 +13,8 @@ public class Main {
 
     public static final int WINDOW_WIDTH = 512;
     public static final int WINDOW_HEIGHT = 768;
+    private static final CardLayout CARD_LAYOUT = new CardLayout();
+    private static final JPanel CARD_PANEL = new JPanel(CARD_LAYOUT);
 
     public static void main(String[] args) {
 
@@ -26,9 +30,19 @@ public class Main {
                 WINDOW_WIDTH, WINDOW_HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        Game game = new Game();
-        frame.add(game);
+        StartMenuPanel startMenuPanel = new StartMenuPanel(difficulty -> startGame(frame, difficulty));
+        CARD_PANEL.add(startMenuPanel, "start");
+        frame.add(CARD_PANEL);
         frame.setVisible(true);
+    }
+
+    private static void startGame(JFrame frame, Difficulty difficulty) {
+        HeroAircraft.resetInstance();
+        Game game = new Game(difficulty);
+        CARD_PANEL.add(game, "game");
+        CARD_LAYOUT.show(CARD_PANEL, "game");
+        frame.revalidate();
         game.action();
+        game.requestFocusInWindow();
     }
 }
