@@ -1,251 +1,324 @@
-# AircraftWar - 飞机大战游戏
+# AircraftWar 飞机大战实验项目
 
 ## 项目简介
 
-AircraftWar 是一个基于Java Swing开发的2D飞机射击游戏，玩家控制一架英雄飞机与各种类型的敌机进行战斗。游戏具有丰富的敌机类型、道具系统和战斗机制。
+AircraftWar 是一个基于 Java Swing 的 2D 飞机射击游戏实验项目。玩家通过鼠标控制英雄机移动，自动发射子弹，击毁敌机获得分数，并通过拾取不同道具改变战斗状态。
 
-## 功能特性
+本项目围绕软件构造课程实验逐步完善，当前已覆盖实验一到实验六的主要内容：继承建模、单例模式、简单工厂模式、工厂方法模式、策略模式、DAO 模式、JUnit 单元测试、Swing 界面、多线程音频与道具效果、观察者模式和模板方法模式。
 
-### 🎮 游戏玩法
-- **英雄飞机控制**：使用鼠标控制英雄飞机移动和射击
-- **多种敌机类型**：普通敌机、精英敌机、精锐敌机、王牌敌机、Boss敌机
-- **道具系统**：血量道具、炸弹道具、火力增强道具、超级火力道具、冰冻道具
-- **分数系统**：击落敌机获得分数，Boss敌机按分数阈值触发
-- **音效系统**：背景音乐、爆炸音效、子弹命中等音效
+## 当前功能
 
-### ✈️ 飞机类型
-- **英雄飞机 (HeroAircraft)**：玩家控制的飞机，使用单例模式确保唯一实例
-- **普通敌机 (MobEnemy)**：基础敌机，移动速度较慢
-- **精英敌机 (EliteEnemy)**：中等难度，有概率掉落道具
-- **精锐敌机 (ElitePlusEnemy)**：高级敌机，更强的战斗力
-- **王牌敌机 (EliteProEnemy)**：精英中的精英，高概率掉落道具
-- **Boss敌机 (BossEnemy)**：最终Boss，拥有强大的生命值和攻击力，必定掉落多个道具
-
-### 🎯 道具系统
-- **血量道具 (BloodProp)**：恢复英雄飞机生命值
-- **炸弹道具 (BombProp)**：清除屏幕上的所有敌机
-- **火力增强道具 (FireProp)**：切换英雄机弹道为散射策略
-- **超级火力道具 (FirePlusProp)**：切换英雄机弹道为环射策略
-- **冰冻道具 (FreezeProp)**：暂时冻结所有敌机
-
-### 🎵 音效系统
-- 背景音乐 (BGM)
-- Boss战音乐
-- 爆炸音效
-- 子弹命中音效
-- 游戏结束音效
-- 道具获取音效
+- 英雄机由鼠标控制移动，自动射击。
+- 敌机包含普通敌机、精英敌机、精锐敌机、王牌敌机和 Boss 敌机。
+- 道具包含加血、火力、超级火力、炸弹和冰冻五种。
+- 支持简单、普通、困难三种难度，难度不同会影响敌机数量、生成周期、敌机概率、射击周期、Boss 生成和难度递进。
+- 支持背景音乐、Boss 音乐、子弹命中、道具获取、炸弹爆炸和游戏结束音效。
+- 游戏结束后弹出排行榜窗口，按难度保存和展示分数记录。
+- 提供 JUnit 测试和 Maven 配置，便于在 VS Code 中运行测试。
+- 提供 PlantUML 源文件和 PNG 类图，用于实验报告和验收。
 
 ## 运行环境
 
-- **Java版本**：JDK 8 或更高版本
-- **操作系统**：Windows / macOS / Linux
-- **开发环境**：IntelliJ IDEA（推荐）或任何支持Java的IDE
+- 操作系统：macOS、Windows 或 Linux
+- Java：JDK 11 及以上，项目当前也可在 OpenJDK 25 环境下编译运行
+- 开发工具：Visual Studio Code 或 IntelliJ IDEA
+- 构建和测试：Maven
+- UML：PlantUML
 
-## 快速开始
+## 运行方式
 
-### 1. 使用IDE运行（推荐）
-- 使用IntelliJ IDEA打开项目根目录（包含`AircraftWar-base.iml`文件）
-- 等待项目索引完成
-- 运行 `src/edu/hitsz/application/Main.java`
+### VS Code 运行
 
-### 2. 命令行编译运行
+建议使用 VS Code 打开项目根目录：
+
 ```bash
-# 进入项目根目录
-cd AircraftWar
-
-# 编译所有Java源文件（需要确保images和videos目录在classpath中）
-find src -name "*.java" > sources.txt
-javac -d out @sources.txt
-rm sources.txt
-
-# 运行游戏
-java -cp "out:src/images:src/videos" edu.hitsz.application.Main
+Aircraftwar
 ```
-*注意：Windows用户请将classpath分隔符`:`替换为`;`*
 
-### 3. 游戏控制
-- **移动控制**：使用鼠标移动控制英雄飞机位置
-- **自动射击**：英雄飞机会自动发射子弹
-- **道具收集**：控制飞机接触掉落道具来获得能力增强
+安装 Java Extension Pack 后，在 Java Projects 或 Run Java 中运行主类：
+
+```text
+edu.hitsz.application.Main
+```
+
+注意不要把 `src/edu/hitsz/application/Main.java` 当作无包名的单文件脚本运行。本项目的主类声明了包名 `edu.hitsz.application`，并且图片、音频资源使用相对路径 `src/images` 和 `src/videos`，因此运行工作目录应保持为项目根目录。
+
+### 命令行运行
+
+在项目根目录执行：
+
+```bash
+javac -encoding UTF-8 -d out $(find src -name '*.java')
+java -cp out edu.hitsz.application.Main
+```
+
+Windows PowerShell 可使用等价的 Java 编译命令，运行时类路径仍需指向编译输出目录。
+
+### Maven 测试
+
+项目使用 Maven 管理 JUnit 5 测试依赖。运行测试：
+
+```bash
+mvn test
+```
+
+测试类位于：
+
+```text
+test/edu/hitsz/aircraft/HeroAircraftTest.java
+```
+
+测试内容覆盖英雄机单例、扣血死亡、射击策略和继承位置方法等基础行为。
 
 ## 项目结构
 
-```
-AircraftWar/
-├── src/                          # 源代码目录
+```text
+Aircraftwar/
+├── pom.xml                         # Maven 配置，管理 JUnit 测试
+├── README.md                       # 项目说明
+├── data/                           # 排行榜数据，运行时按难度生成 CSV
+├── src/
+│   ├── images/                     # 图片资源
+│   ├── videos/                     # 音频资源
 │   └── edu/hitsz/
-│       ├── application/          # 应用程序层
-│       │   ├── Main.java        # 程序入口
-│       │   ├── Game.java        # 游戏主逻辑
-│       │   ├── HeroController.java # 英雄控制器（鼠标控制）
-│       │   └── ImageManager.java # 图片管理器（单例）
-│       ├── aircraft/            # 飞机相关类
-│       │   ├── AbstractAircraft.java # 抽象飞机类
-│       │   ├── AbstractEnemy.java    # 抽象敌机类
-│       │   ├── HeroAircraft.java    # 英雄飞机（单例模式）
-│       │   ├── MobEnemy.java        # 普通敌机
-│       │   ├── EliteEnemy.java      # 精英敌机
-│       │   ├── ElitePlusEnemy.java  # 精锐敌机
-│       │   ├── EliteProEnemy.java   # 王牌敌机
-│       │   └── BossEnemy.java       # Boss敌机
-│       ├── basic/               # 基础类
-│       │   └── AbstractFlyingObject.java # 抽象飞行物体
-│       ├── bullet/              # 子弹相关类
-│       │   ├── BaseBullet.java      # 基础子弹类
-│       │   ├── HeroBullet.java      # 英雄子弹
-│       │   └── EnemyBullet.java     # 敌机子弹
-│       ├── factory/             # 工厂模式相关
-│       │   ├── EnemyFactory.java    # 敌机工厂接口（工厂方法模式）
-│       │   ├── MobEnemyFactory.java # 普通敌机工厂
-│       │   ├── EliteEnemyFactory.java # 精英敌机工厂
-│       │   ├── ElitePlusEnemyFactory.java # 精锐敌机工厂
-│       │   ├── EliteProEnemyFactory.java  # 王牌敌机工厂
-│       │   ├── BossEnemyFactory.java # Boss敌机工厂
-│       │   └── PropFactory.java     # 道具简单工厂（简单工厂模式）
-│       ├── prop/                # 道具相关类
-│       │   ├── AbstractProp.java   # 抽象道具类
-│       │   ├── BloodProp.java      # 血量道具
-│       │   ├── BombProp.java       # 炸弹道具
-│       │   ├── FireProp.java       # 火力道具
-│       │   ├── FirePlusProp.java   # 超级火力道具
-│       │   └── FreezeProp.java     # 冰冻道具
-│       └── strategy/            # 策略模式相关
-│           ├── ShootStrategy.java  # 射击策略接口
-│           ├── DirectShootStrategy.java # 单排直射策略
-│           ├── NoShootStrategy.java    # 不射击策略
-│           ├── DoubleDirectShootStrategy.java # 双排直射策略
-│           ├── SpreadShootStrategy.java # 散射策略
-│           └── CircleShootStrategy.java # 环射策略
-├── images/                      # 图片资源
-│   ├── bg.jpg - bg5.jpg         # 背景图片（滚动效果）
-│   ├── hero.png                 # 英雄飞机图片
-│   ├── mob.png                  # 普通敌机图片
-│   ├── elite.png                # 精英敌机图片
-│   ├── elitePlus.png            # 精锐敌机图片
-│   ├── elitePro.png             # 王牌敌机图片
-│   ├── boss.png                 # Boss敌机图片
-│   ├── bullet_hero.png          # 英雄子弹图片
-│   ├── bullet_enemy.png         # 敌机子弹图片
-│   └── prop_*.png               # 各种道具图片
-├── videos/                      # 音效资源
-│   ├── bgm.wav                  # 背景音乐
-│   ├── bgm_boss.wav             # Boss战音乐
-│   ├── bomb_explosion.wav       # 爆炸音效
-│   ├── bullet_hit.wav           # 子弹命中音效
-│   ├── game_over.wav            # 游戏结束音效
-│   └── get_supply.wav           # 道具获取音效
-├── uml/                         # UML设计图（课程实验要求）
-│   ├── Inheritence.puml         # 继承关系图
-│   ├── SimpleFactory.puml       # 简单工厂模式图
-│   ├── FactoryMethod.puml       # 工厂方法模式图
-│   ├── Strategy.puml            # 策略模式图
-│   ├── Singleton.puml           # 单例模式图
-│   └── *.png                    # 生成的UML图片
-├── .gitignore                   # Git忽略文件配置
-├── AircraftWar-base.iml         # IntelliJ IDEA模块文件
-└── README.md                    # 项目说明文档
+│       ├── aircraft/               # 英雄机、敌机及飞机抽象类
+│       ├── application/            # 主程序、游戏面板、难度、界面、音频线程
+│       ├── basic/                  # 飞行对象抽象父类
+│       ├── bullet/                 # 子弹类
+│       ├── factory/                # 简单工厂和工厂方法相关类
+│       ├── observer/               # 道具观察者接口
+│       ├── prop/                   # 道具类
+│       ├── score/                  # 排行榜 DAO 和分数记录
+│       └── strategy/               # 射击策略
+├── test/                           # JUnit 测试
+└── uml/                            # PlantUML 源文件和生成图片
 ```
 
-## 设计模式应用
+## 主要模块
 
-本项目是面向对象设计模式的实践案例，主要应用了以下设计模式：
+### application
 
-### 1. 单例模式 (Singleton)
-- **应用位置**：`HeroAircraft` 类
-- **实现方式**：私有构造函数 + 静态getInstance()方法
-- **目的**：确保游戏中只有一个英雄飞机实例，全局可访问
+- `Main`：程序入口，显示难度选择界面并创建对应游戏对象。
+- `StartMenuPanel`：Swing 难度选择界面。
+- `Game`：游戏主面板和模板方法抽象类，`action()` 定义固定主循环。
+- `EasyGame`、`NormalGame`、`HardGame`：三种难度的具体游戏类。
+- `ScoreBoardFrame`：游戏结束后的排行榜窗口，支持保存、展示和删除记录。
+- `AudioManager`、`MusicThread`：音频播放管理和播放线程。
+- `FirePowerTask`：火力道具持续时间结束后的恢复任务。
+- `HeroController`：鼠标控制英雄机移动。
+- `ImageManager`：集中加载和提供图片资源。
 
-### 2. 工厂方法模式 (Factory Method)
-- **应用位置**：`EnemyFactory` 接口及其具体实现类
-- **实现方式**：定义创建敌机的抽象接口，由具体工厂子类决定实例化哪种敌机
-- **目的**：将敌机的创建与使用分离，支持扩展新的敌机类型而不修改客户端代码
+### aircraft
 
-### 3. 简单工厂模式 (Simple Factory)
-- **应用位置**：`PropFactory` 类
-- **实现方式**：静态方法根据传入类型创建对应的道具实例
-- **目的**：集中管理道具对象的创建逻辑，简化客户端代码
+- `AbstractAircraft`：飞机抽象父类，维护血量和射击策略。
+- `AbstractEnemy`：敌机抽象父类，维护击毁得分并实现道具观察者接口。
+- `HeroAircraft`：英雄机，采用单例模式。
+- `MobEnemy`：普通敌机，不射击，冰冻后永久静止。
+- `EliteEnemy`：精英敌机，直射。
+- `ElitePlusEnemy`：精锐敌机，双发直射。
+- `EliteProEnemy`：王牌敌机，散射，炸弹只造成伤害，冰冻会减速。
+- `BossEnemy`：Boss 敌机，环射，只左右移动，不受炸弹和冰冻影响。
 
-### 4. 策略模式 (Strategy)
-- **应用位置**：`ShootStrategy` 接口及其具体实现类
-- **实现方式**：定义一系列射击算法，封装在独立的策略类中，使它们可以相互替换
-- **目的**：实现英雄飞机和不同敌机类型的多样化射击行为，支持运行时动态切换射击策略
+### prop
 
-### 5. 模板方法模式 (Template Method)
-- **应用位置**：`AbstractFlyingObject` 和 `AbstractAircraft` 抽象类
-- **实现方式**：在抽象类中定义算法骨架，将某些步骤延迟到子类实现
-- **目的**：提供飞行对象和飞机的通用行为框架，确保子类遵循统一的接口
+- `AbstractProp`：道具抽象父类，维护观察者列表并提供通知方法。
+- `BloodProp`：恢复英雄机生命值。
+- `FireProp`：临时切换英雄机为散射策略。
+- `FirePlusProp`：临时切换英雄机为环射策略。
+- `BombProp`：通知观察者执行炸弹效果。
+- `FreezeProp`：通知观察者执行冰冻效果。
 
-## 游戏机制详解
+### score
 
-### 敌机生成逻辑
-1. **普通敌机生成**：每隔固定周期随机生成一种敌机（Boss除外）
-2. **Boss敌机生成**：玩家分数达到阈值（默认500分）时触发生成
-3. **敌机类型概率**：
-   - 普通敌机：40%
-   - 精英敌机：25%
-   - 精锐敌机：20%
-   - 王牌敌机：15%
+- `ScoreRecord`：排行榜记录对象。
+- `ScoreDao`：排行榜数据访问接口。
+- `ScoreDaoImpl`：基于 CSV 文件的 DAO 实现。
 
-### 道具掉落机制
-1. **精英敌机**：30%概率掉落基础道具（血量、火力、超级火力）
-2. **精锐敌机**：50%概率掉落4种道具（不含冰冻）
-3. **王牌敌机**：70%概率掉落全部5种道具
-4. **Boss敌机**：100%掉落3个道具
-5. **普通敌机**：不掉落道具
+排行榜按难度分别保存：
 
-### 射击策略系统
-- **英雄飞机默认**：单排直射策略
-- **拾取火力道具**：切换为散射策略
-- **拾取超级火力道具**：切换为环射策略
-- **不同敌机类型**：使用不同的射击策略（部分敌机使用不射击策略）
+```text
+data/easy.csv
+data/normal.csv
+data/hard.csv
+```
 
-## 构建与开发
+这些文件是运行时数据，不是核心源码。
 
-### 开发环境设置
-1. 安装JDK 8或更高版本
-2. 安装IntelliJ IDEA（社区版即可）
-3. 克隆或下载本项目代码
-4. 使用IntelliJ IDEA打开项目目录
+## 设计模式对应关系
 
-### 代码规范
-- 遵循Java命名规范（类名大写驼峰，方法名小写驼峰）
-- 关键类和方法添加Javadoc注释
-- 设计模式应用处添加模式说明注释
+### 单例模式
 
-### 扩展指南
-如需扩展本项目，建议遵循以下原则：
-1. 添加新敌机类型：实现新的`EnemyFactory`子类
-2. 添加新道具类型：扩展`PropFactory.PropType`枚举和对应道具类
-3. 添加新射击策略：实现新的`ShootStrategy`子类
-4. 保持设计模式的一致性，避免破坏现有架构
+应用位置：`HeroAircraft`
 
-## 许可证
+英雄机是玩家唯一操控对象，使用单例模式保证游戏过程中只有一个英雄机实例。`getInstance()` 负责获取唯一实例，`resetInstance()` 用于重新开始或切换难度前重置英雄机状态。
 
-本项目仅供学习用途
+对应 UML：
 
-## 贡献指南
+```text
+uml/Singleton.puml
+uml/Singleton.png
+```
 
-欢迎提交Issue和Pull Request来改进项目。如需贡献代码，请确保：
-1. 遵循现有代码风格和设计模式
-2. 添加适当的测试（如有）
-3. 更新相关文档
+### 简单工厂模式
 
-## 更新日志
+应用位置：`PropFactory`
 
-### v1.0.0（当前版本）
-- 基础游戏框架搭建
-- 实现英雄飞机和5种敌机类型
-- 添加5种道具系统和音效系统
-- 完成游戏核心逻辑（生成、移动、碰撞、分数）
-- 应用4种设计模式（单例、工厂方法、简单工厂、策略）
+道具创建由 `PropFactory.createProp()` 统一完成，`PropType` 枚举表示血量、火力、超级火力、炸弹和冰冻五种道具。Game 只决定可掉落道具范围，不直接依赖每个具体道具构造方法。
 
-### 历史版本
-- **Lab4提交**：添加单例模式，完善英雄飞机唯一实例管理
-- **Lab3提交**：应用策略模式，实现多样化射击行为
-- **Lab2提交**：应用简单工厂和工厂方法模式，改进敌机和道具创建
-- **Lab1提交**：基础游戏框架，继承与多态应用
+对应 UML：
 
----
+```text
+uml/SimpleFactory.puml
+uml/SimpleFactory.png
+```
 
-**开始游戏，享受射击的乐趣吧！** 🚀
+### 工厂方法模式
+
+应用位置：`EnemyFactory` 及具体敌机工厂
+
+不同敌机由不同工厂创建，包括 `MobEnemyFactory`、`EliteEnemyFactory`、`ElitePlusEnemyFactory`、`EliteProEnemyFactory` 和 `BossEnemyFactory`。Game 通过 `EnemyFactory` 抽象接口创建敌机，降低主流程和具体敌机类型的耦合。
+
+对应 UML：
+
+```text
+uml/FactoryMethod.puml
+uml/FactoryMethod.png
+```
+
+### 策略模式
+
+应用位置：`ShootStrategy` 及具体射击策略
+
+射击方式被封装为策略对象。英雄机和不同敌机通过组合不同 `ShootStrategy` 实现直射、双发、散射、环射或不射击。火力道具通过动态替换英雄机策略实现弹道变化。
+
+对应 UML：
+
+```text
+uml/Strategy.puml
+uml/Strategy.png
+```
+
+### DAO 模式
+
+应用位置：`score` 包
+
+排行榜数据访问由 `ScoreDao` 抽象，`ScoreDaoImpl` 负责读写 CSV 文件，`ScoreBoardFrame` 只依赖 DAO 接口完成增删查和展示。这样界面逻辑和文件持久化逻辑保持分离。
+
+对应 UML：
+
+```text
+uml/DAO.puml
+```
+
+### 观察者模式
+
+应用位置：炸弹和冰冻道具
+
+`AbstractProp` 作为观察目标维护 `PropObserver` 列表。英雄机拾取炸弹或冰冻道具时，Game 将当前敌机和敌机子弹注册为观察者，随后 `BombProp` 或 `FreezeProp` 通知所有观察者执行对应效果。
+
+不同对象响应不同：
+
+- 普通敌机：炸弹坠毁，冰冻后永久静止。
+- 精英敌机：炸弹坠毁，冰冻 4 秒后恢复。
+- 精锐敌机：炸弹坠毁，冰冻 3 秒后恢复。
+- 王牌敌机：炸弹造成伤害，冰冻后减速 5 秒。
+- Boss 敌机：不受炸弹和冰冻影响。
+- 敌机子弹：炸弹后消失，冰冻后静止 5 秒。
+
+对应 UML：
+
+```text
+uml/Observer.puml
+uml/Observer.png
+```
+
+### 模板方法模式
+
+应用位置：`Game`、`EasyGame`、`NormalGame`、`HardGame`
+
+`Game.action()` 是模板方法，声明为 `final`，固定游戏主循环步骤：敌机生成、Boss 生成、难度递进、射击、移动、碰撞检测、后处理、重绘和结束检查。
+
+可变步骤由子类通过钩子方法定制：
+
+- `EasyGame`：节奏较慢，不生成 Boss，难度不随时间递进。
+- `NormalGame`：生成 Boss，Boss 血量固定，敌机生成周期、速度和血量随时间提升。
+- `HardGame`：节奏更快，敌机更强，英雄机射击周期变慢，敌机射击周期变快，Boss 每次生成都会增加血量。
+
+对应 UML：
+
+```text
+uml/Template.puml
+uml/Template.png
+```
+
+## 游戏机制
+
+### 难度选择
+
+启动游戏后先进入 `StartMenuPanel`，玩家选择简单、普通或困难难度。`Main` 根据选择创建对应的 `EasyGame`、`NormalGame` 或 `HardGame`。
+
+三种难度会影响：
+
+- 屏幕中敌机最大数量。
+- 敌机生成周期。
+- 不同敌机出现概率。
+- 英雄机和敌机射击周期。
+- Boss 生成阈值和 Boss 血量变化。
+- 是否随游戏时间提高难度。
+
+### 敌机生成
+
+普通敌机、精英敌机、精锐敌机和王牌敌机由概率控制生成。Boss 由分数阈值触发生成：
+
+- 简单难度不生成 Boss。
+- 普通难度生成固定血量 Boss。
+- 困难难度每次生成 Boss 都会额外提高血量。
+
+### 道具掉落
+
+- 普通敌机不掉落道具。
+- 精英敌机按概率掉落基础道具。
+- 精锐敌机按概率掉落四种道具，不含冰冻。
+- 王牌敌机按概率掉落全部五种道具。
+- Boss 被击毁后必定掉落三个道具，且从全部五种道具中随机选择。
+- 炸弹道具造成的敌机坠毁会计分，但不会触发敌机掉落道具。
+
+### 排行榜
+
+游戏结束后会打开排行榜窗口，弹出玩家姓名输入框，保存当前难度、本局分数和记录时间。排行榜按分数降序排列，并支持删除选中记录。
+
+如果取消姓名输入，则本局记录不会保存；如果输入为空字符串，则保存为默认玩家名 `Player`。
+
+## 实验内容完成情况
+
+- 实验一：完成系统分析、继承关系建模和英雄机单例模式。
+- 实验二：完成道具简单工厂和敌机工厂方法模式。
+- 实验三：完成射击策略模式和多种敌机/道具行为。
+- 实验四：完成 DAO 排行榜、CSV 持久化和 JUnit 单元测试。
+- 实验五：完成 Swing 难度选择、排行榜界面、音频线程和火力恢复线程。
+- 实验六：完成炸弹/冰冻观察者模式和三种难度模板方法模式。
+
+## UML 文件
+
+```text
+uml/Inheritence.puml
+uml/Singleton.puml
+uml/SimpleFactory.puml
+uml/FactoryMethod.puml
+uml/Strategy.puml
+uml/DAO.puml
+uml/Observer.puml
+uml/Template.puml
+```
+
+除 `DAO.puml` 外，当前目录中也保留了对应 PNG 图片。`DAO.puml` 可使用 PlantUML 生成图片。
+
+## 注意事项
+
+- 运行游戏时请保证工作目录是项目根目录，否则 `src/images` 和 `src/videos` 下的资源可能加载失败。
+- `out/`、`target/`、`.DS_Store` 和 `data/*.csv` 都属于本地生成内容或运行数据，一般不需要作为实验源码提交。
+- 项目保留了 IDEA 工程文件，也提供了 Maven 配置；在 VS Code 中建议优先使用 Maven/JUnit 工作流。
+
+## 学习用途
+
+本项目仅用于软件构造课程实验与设计模式学习。
