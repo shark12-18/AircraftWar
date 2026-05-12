@@ -36,6 +36,11 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
         return hp;
     }
 
+    public void increaseHp(int increase) {
+        this.maxHp += increase;
+        this.hp += increase;
+    }
+
 
     /**
      * 设置射击策略（策略模式）
@@ -62,5 +67,4 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
     public abstract List<BaseBullet> shoot();
 
 }
-
 

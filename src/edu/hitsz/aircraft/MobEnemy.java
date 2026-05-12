@@ -38,4 +38,8 @@ public class MobEnemy extends AbstractEnemy {
         return shootStrategy.shoot(this.getLocationX(), this.getLocationY(), this.getSpeedY(), 1, 0);
     }
 
+    @Override
+    public void onFreeze() {
+        stopPermanently();
+    }
 }

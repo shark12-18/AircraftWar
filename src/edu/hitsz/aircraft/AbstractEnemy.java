@@ -1,13 +1,14 @@
 package edu.hitsz.aircraft;
 
 import edu.hitsz.bullet.BaseBullet;
+import edu.hitsz.observer.PropObserver;
 import java.util.List;
 
 /**
  * 敌机抽象父类
  * 定义所有敌机的公共属性和行为
  */
-public abstract class AbstractEnemy extends AbstractAircraft {
+public abstract class AbstractEnemy extends AbstractAircraft implements PropObserver {
     
     // 敌机得分
     protected int score;
@@ -46,4 +47,14 @@ public abstract class AbstractEnemy extends AbstractAircraft {
      */
     @Override
     public abstract void forward();
+
+    @Override
+    public void onBomb() {
+        vanish();
+    }
+
+    @Override
+    public void onFreeze() {
+        stopTemporarily(4000);
+    }
 }

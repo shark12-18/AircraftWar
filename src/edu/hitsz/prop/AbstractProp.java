@@ -2,6 +2,10 @@ package edu.hitsz.prop;
 
 import edu.hitsz.application.Main;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.observer.PropObserver;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 道具抽象父类
@@ -11,6 +15,7 @@ public abstract class AbstractProp extends AbstractFlyingObject {
     
     // 道具效果持续时间（帧数）
     protected int effectDuration;
+    private final List<PropObserver> observers = new ArrayList<>();
 
     /**
      * 道具构造函数
@@ -42,6 +47,26 @@ public abstract class AbstractProp extends AbstractFlyingObject {
      * 每个具体道具类需要实现自己的效果逻辑
      */
     public abstract void activate();
+
+    public void addObserver(PropObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(PropObserver observer) {
+        observers.remove(observer);
+    }
+
+    protected void notifyBombObservers() {
+        for (PropObserver observer : observers) {
+            observer.onBomb();
+        }
+    }
+
+    protected void notifyFreezeObservers() {
+        for (PropObserver observer : observers) {
+            observer.onFreeze();
+        }
+    }
 
     /**
      * 获取道具效果持续时间

@@ -1,0 +1,77 @@
+@startuml Template
+'模板方法模式 - 游戏难度控制
+
+title 模板方法模式 —— 游戏难度控制
+
+' ========== 抽象模板类 ==========
+abstract class Game {
+    # enemyMaxNumber: int
+    # enemySpawnCycle: double
+    # bossScoreThreshold: int
+    # heroShootCycle: double
+    # enemyShootCycle: double
+    + {final} action(): void
+    # spawnEnemyAction(): void
+    # selectEnemyFactory(double rand): EnemyFactory
+    # adjustEnemyByDifficulty(AbstractEnemy enemy): void
+    # spawnBossAction(): void
+    # canSpawnBoss(): boolean
+    # createBossEnemy(): AbstractEnemy
+    # increaseDifficultyAction(): void
+}
+
+' ========== 具体模板类 ==========
+class EasyGame {
+    # selectEnemyFactory(double rand): EnemyFactory
+    # canSpawnBoss(): boolean
+}
+
+class NormalGame {
+    - difficultyLevel: int
+    - enemySpeedMultiplier: double
+    - enemyHpBonus: int
+    # selectEnemyFactory(double rand): EnemyFactory
+    # adjustEnemyByDifficulty(AbstractEnemy enemy): void
+    # increaseDifficultyAction(): void
+}
+
+class HardGame {
+    - difficultyLevel: int
+    - enemySpeedMultiplier: double
+    - enemyHpBonus: int
+    - bossHpBonus: int
+    # selectEnemyFactory(double rand): EnemyFactory
+    # adjustEnemyByDifficulty(AbstractEnemy enemy): void
+    # createBossEnemy(): AbstractEnemy
+    # increaseDifficultyAction(): void
+}
+
+interface EnemyFactory {
+    + createEnemy(): AbstractEnemy
+}
+
+abstract class AbstractEnemy
+
+class Main {
+    - createGame(Difficulty difficulty): Game
+}
+
+' ========== 关系 ==========
+Game <|-- EasyGame
+Game <|-- NormalGame
+Game <|-- HardGame
+
+Game o--> EnemyFactory : enemy factories
+Game ..> AbstractEnemy : creates/adjusts
+Main ..> Game : choose by difficulty
+
+note right of Game
+  action() 定义固定主循环：
+  敌机生成、Boss 生成、难度递进、
+  射击、移动、碰撞、后处理、
+  重绘和游戏结束检查。
+
+  不同难度只覆盖可变步骤。
+end note
+
+@enduml

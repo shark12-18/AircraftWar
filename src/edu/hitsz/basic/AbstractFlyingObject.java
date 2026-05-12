@@ -31,6 +31,7 @@ public abstract class AbstractFlyingObject {
 
     //有效（生存）标记，标记为 false的对象会在下次刷新时清除
     protected boolean isValid = true;
+    private int speedEffectVersion = 0;
 
     public AbstractFlyingObject() {
     }
@@ -104,6 +105,55 @@ public abstract class AbstractFlyingObject {
         return speedY;
     }
 
+    public int getSpeedX() {
+        return speedX;
+    }
+
+    public void setSpeed(int speedX, int speedY) {
+        this.speedX = speedX;
+        this.speedY = speedY;
+    }
+
+    public void increaseSpeed(double multiplier) {
+        this.speedX = (int) Math.round(this.speedX * multiplier);
+        this.speedY = (int) Math.round(this.speedY * multiplier);
+    }
+
+    public void stopPermanently() {
+        speedEffectVersion++;
+        this.speedX = 0;
+        this.speedY = 0;
+    }
+
+    public void stopTemporarily(long durationMillis) {
+        applySpeedEffect(0.0, durationMillis);
+    }
+
+    public void slowTemporarily(double multiplier, long durationMillis) {
+        applySpeedEffect(multiplier, durationMillis);
+    }
+
+    private void applySpeedEffect(double multiplier, long durationMillis) {
+        int originalSpeedX = this.speedX;
+        int originalSpeedY = this.speedY;
+        int version = ++speedEffectVersion;
+        this.speedX = (int) Math.round(originalSpeedX * multiplier);
+        this.speedY = (int) Math.round(originalSpeedY * multiplier);
+        Thread restoreThread = new Thread(() -> {
+            try {
+                Thread.sleep(durationMillis);
+                if (speedEffectVersion == version && isValid) {
+                    this.speedX = originalSpeedX;
+                    this.speedY = originalSpeedY;
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "speed-effect-restore");
+        restoreThread.setDaemon(true);
+        restoreThread.start();
+    }
+
     public BufferedImage getImage() {
         if (image == null){
             image = ImageManager.get(this);
@@ -154,4 +204,3 @@ public abstract class AbstractFlyingObject {
     }
 
 }
-

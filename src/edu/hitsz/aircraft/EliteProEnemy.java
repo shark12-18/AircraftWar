@@ -113,4 +113,14 @@ public class EliteProEnemy extends AbstractEnemy {
     public int getPower() {
         return power;
     }
+
+    @Override
+    public void onBomb() {
+        decreaseHp(50);
+    }
+
+    @Override
+    public void onFreeze() {
+        slowTemporarily(0.5, 5000);
+    }
 }

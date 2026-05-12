@@ -2,12 +2,13 @@ package edu.hitsz.bullet;
 
 import edu.hitsz.application.Main;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.observer.PropObserver;
 
 /**
  * 子弹基类
  * @author hitsz
  */
-public abstract class BaseBullet extends AbstractFlyingObject {
+public abstract class BaseBullet extends AbstractFlyingObject implements PropObserver {
 
     private int power = 0;
 
@@ -37,5 +38,15 @@ public abstract class BaseBullet extends AbstractFlyingObject {
 
     public int getPower() {
         return power;
+    }
+
+    @Override
+    public void onBomb() {
+        vanish();
+    }
+
+    @Override
+    public void onFreeze() {
+        stopTemporarily(5000);
     }
 }

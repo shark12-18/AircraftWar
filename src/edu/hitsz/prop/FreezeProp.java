@@ -33,8 +33,8 @@ public class FreezeProp extends AbstractProp {
     public void activate() {
         // 冰冻道具激活逻辑
         System.out.println("冰冻道具激活：敌机移动速度减缓" + speedReduction + "%，射击频率减缓" + shootFrequencyReduction + "%，持续" + freezeDuration + "帧");
-        
-        // 这里应该调用游戏管理器的冰冻效果应用方法
+        notifyFreezeObservers();
+
         // 道具使用后消失
         this.vanish();
     }

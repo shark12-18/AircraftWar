@@ -38,11 +38,23 @@ public class Main {
 
     private static void startGame(JFrame frame, Difficulty difficulty) {
         HeroAircraft.resetInstance();
-        Game game = new Game(difficulty);
+        Game game = createGame(difficulty);
         CARD_PANEL.add(game, "game");
         CARD_LAYOUT.show(CARD_PANEL, "game");
         frame.revalidate();
         game.action();
         game.requestFocusInWindow();
+    }
+
+    private static Game createGame(Difficulty difficulty) {
+        switch (difficulty) {
+            case EASY:
+                return new EasyGame();
+            case HARD:
+                return new HardGame();
+            case NORMAL:
+            default:
+                return new NormalGame();
+        }
     }
 }

@@ -80,4 +80,9 @@ public class ElitePlusEnemy extends AbstractEnemy {
     public int getPower() {
         return power;
     }
+
+    @Override
+    public void onFreeze() {
+        stopTemporarily(3000);
+    }
 }

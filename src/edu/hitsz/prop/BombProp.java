@@ -29,8 +29,8 @@ public class BombProp extends AbstractProp {
     public void activate() {
         // 炸弹道具激活逻辑
         System.out.println("炸弹道具激活：全屏爆炸，清除所有敌机");
-        
-        // 这里应该调用游戏管理器的全屏清敌方法
+        notifyBombObservers();
+
         // 道具使用后消失
         this.vanish();
     }

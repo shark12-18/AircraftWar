@@ -1,0 +1,92 @@
+@startuml Observer
+'观察者模式 - 炸弹和冰冻道具
+
+title 观察者模式 —— 炸弹和冰冻道具
+
+' ========== 抽象观察目标 ==========
+abstract class AbstractProp {
+    - observers: List<PropObserver>
+    + addObserver(PropObserver observer): void
+    + removeObserver(PropObserver observer): void
+    # notifyBombObservers(): void
+    # notifyFreezeObservers(): void
+    + {abstract} activate(): void
+}
+
+' ========== 具体观察目标 ==========
+class BombProp {
+    + activate(): void
+}
+
+class FreezeProp {
+    + activate(): void
+}
+
+' ========== 抽象观察者 ==========
+interface PropObserver {
+    + onBomb(): void
+    + onFreeze(): void
+}
+
+' ========== 具体观察者 ==========
+abstract class AbstractEnemy {
+    + onBomb(): void
+    + onFreeze(): void
+}
+
+class MobEnemy {
+    + onFreeze(): void
+}
+
+class EliteEnemy
+
+class ElitePlusEnemy {
+    + onFreeze(): void
+}
+
+class EliteProEnemy {
+    + onBomb(): void
+    + onFreeze(): void
+}
+
+class BossEnemy {
+    + onBomb(): void
+    + onFreeze(): void
+}
+
+abstract class BaseBullet {
+    + onBomb(): void
+    + onFreeze(): void
+}
+
+' ========== 关系 ==========
+AbstractProp o--> PropObserver : observers
+AbstractProp <|-- BombProp
+AbstractProp <|-- FreezeProp
+
+PropObserver <|.. AbstractEnemy
+PropObserver <|.. BaseBullet
+
+AbstractEnemy <|-- MobEnemy
+AbstractEnemy <|-- EliteEnemy
+AbstractEnemy <|-- ElitePlusEnemy
+AbstractEnemy <|-- EliteProEnemy
+AbstractEnemy <|-- BossEnemy
+
+BombProp ..> PropObserver : notifyBombObservers()
+FreezeProp ..> PropObserver : notifyFreezeObservers()
+
+note right of PropObserver
+  炸弹：
+  普通/精英/精锐敌机坠毁，
+  王牌敌机掉血，Boss 不受影响，
+  敌机子弹消失。
+
+  冰冻：
+  普通敌机永久静止，
+  精英/精锐敌机限时静止，
+  王牌敌机限时减速，Boss 不受影响，
+  敌机子弹静止 5s 后恢复。
+end note
+
+@enduml

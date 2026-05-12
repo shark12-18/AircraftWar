@@ -150,4 +150,14 @@ public class BossEnemy extends AbstractEnemy {
     public int getPower() {
         return power;
     }
+
+    @Override
+    public void onBomb() {
+        System.out.println("BossEnemy is immune to bomb.");
+    }
+
+    @Override
+    public void onFreeze() {
+        System.out.println("BossEnemy is immune to freeze.");
+    }
 }
