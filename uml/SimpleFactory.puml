@@ -20,8 +20,10 @@ enum "PropFactory.PropType" as PropType {
 abstract class AbstractProp {
     # effectDuration:int
     + AbstractProp(int locationX, int locationY, int speedX, int speedY, int effectDuration)
+    + forward():void
     + {abstract} activate():void
     + getEffectDuration():int
+    + setEffectDuration(int effectDuration):void
 }
 
 ' ========== 具体产品 ==========

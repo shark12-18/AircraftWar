@@ -1,5 +1,6 @@
 package edu.hitsz.prop;
 
+import edu.hitsz.application.Main;
 import edu.hitsz.basic.AbstractFlyingObject;
 
 /**
@@ -31,6 +32,9 @@ public abstract class AbstractProp extends AbstractFlyingObject {
     public void forward() {
         // 道具向下移动
         this.locationY += this.speedY;
+        if (this.locationY >= Main.WINDOW_HEIGHT) {
+            vanish();
+        }
     }
 
     /**

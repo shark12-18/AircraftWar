@@ -32,9 +32,12 @@ abstract class AbstractAircraft
 {
     # maxHp:int
     # hp:int
+    # shootStrategy:ShootStrategy
     + AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
     + decreaseHp(int decrease):void
     + getHp():int
+    + setShootStrategy(ShootStrategy shootStrategy):void
+    + getShootStrategy():ShootStrategy
     + {abstract} shoot():List<BaseBullet>
 }
 
@@ -47,7 +50,6 @@ class HeroAircraft
     - direction:int
     - isAlive:boolean
     
-    - HeroAircraft()
     - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
     
     + static getInstance(): HeroAircraft
@@ -108,15 +110,17 @@ class BossEnemy {
     + BossEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
     + shoot():List<BaseBullet>
-    + changePhase():void
+    + changePhase(int newPhase):void
 }
 
 ' ========== 道具类层次结构 ==========
 abstract class AbstractProp {
     # effectDuration:int
     + AbstractProp(int locationX, int locationY, int speedX, int speedY, int effectDuration)
+    + forward():void
     + {abstract} activate():void
     + getEffectDuration():int
+    + setEffectDuration(int effectDuration):void
 }
 
 ' --- 具体道具类 ---

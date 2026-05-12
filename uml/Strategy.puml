@@ -5,28 +5,28 @@ title 策略模式 —— 弹道系统
 
 ' ========== 抽象策略 ==========
 interface ShootStrategy {
-    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+    + shoot(int x, int y, int baseSpeedY, int direction, int power): List<BaseBullet>
 }
 
 ' ========== 具体策略 ==========
 class NoShootStrategy {
-    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+    + shoot(int x, int y, int baseSpeedY, int direction, int power): List<BaseBullet>
 }
 
 class DirectShootStrategy {
-    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+    + shoot(int x, int y, int baseSpeedY, int direction, int power): List<BaseBullet>
 }
 
 class DoubleDirectShootStrategy {
-    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+    + shoot(int x, int y, int baseSpeedY, int direction, int power): List<BaseBullet>
 }
 
 class SpreadShootStrategy {
-    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+    + shoot(int x, int y, int baseSpeedY, int direction, int power): List<BaseBullet>
 }
 
 class CircleShootStrategy {
-    + shoot(int x, int y, int direction, int power): List<BaseBullet>
+    + shoot(int x, int y, int baseSpeedY, int direction, int power): List<BaseBullet>
 }
 
 ' ========== 上下文（Context） ==========

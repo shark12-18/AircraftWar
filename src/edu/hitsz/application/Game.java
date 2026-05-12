@@ -126,6 +126,8 @@ public class Game extends JPanel {
                 bulletsMoveAction();
                 // 飞机移动
                 aircraftsMoveAction();
+                // 道具移动
+                propsMoveAction();
                 // 撞击检测
                 crashCheckAction();
                 // 后处理
@@ -171,6 +173,12 @@ public class Game extends JPanel {
     private void aircraftsMoveAction() {
         for (AbstractAircraft enemyAircraft : enemyAircrafts) {
             enemyAircraft.forward();
+        }
+    }
+
+    private void propsMoveAction() {
+        for (AbstractProp prop : props) {
+            prop.forward();
         }
     }
 
@@ -298,11 +306,11 @@ public class Game extends JPanel {
                     PropFactory.PropType.FIRE_PLUS,
                     PropFactory.PropType.BOMB
             };
-        } else if (enemy instanceof EliteProEnemy) {
-            // 王牌敌机：可掉落全部5种道具
+        } else if (enemy instanceof EliteProEnemy || enemy instanceof BossEnemy) {
+            // 王牌敌机、Boss敌机：可掉落全部5种道具
             availableTypes = PropFactory.PropType.values();
         } else {
-            // 精英敌机、Boss等：掉落3种基础道具
+            // 精英敌机：掉落3种基础道具
             availableTypes = new PropFactory.PropType[]{
                     PropFactory.PropType.BLOOD,
                     PropFactory.PropType.FIRE,

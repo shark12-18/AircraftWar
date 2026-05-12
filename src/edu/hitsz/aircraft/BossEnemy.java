@@ -44,23 +44,14 @@ public class BossEnemy extends AbstractEnemy {
 
     @Override
     public void forward() {
-        // Boss敌机在屏幕上方水平移动
+        // Boss敌机悬浮在屏幕上方，仅水平移动
         this.locationX += this.speedX;
         
         // 边界检测和反弹
         if (this.locationX <= 0 || this.locationX >= Main.WINDOW_WIDTH) {
             this.speedX = -this.speedX;
         }
-        
-        // 根据阶段调整移动模式
-        if (phase == 2) {
-            // 阶段2：小幅上下移动
-            this.locationY += (int)(Math.sin(System.currentTimeMillis() / 500.0) * 2);
-        } else if (phase == 3) {
-            // 阶段3：更复杂的移动模式
-            this.locationY += (int)(Math.sin(System.currentTimeMillis() / 300.0) * 3);
-        }
-        
+
         // 更新特殊攻击冷却
         if (specialAttackCooldown > 0) {
             specialAttackCooldown--;
