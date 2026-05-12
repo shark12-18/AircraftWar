@@ -5,12 +5,16 @@ import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.factory.*;
 import edu.hitsz.prop.*;
+import edu.hitsz.score.ScoreDao;
+import edu.hitsz.score.ScoreDaoImpl;
+import edu.hitsz.score.ScoreRecord;
 import edu.hitsz.strategy.CircleShootStrategy;
 import edu.hitsz.strategy.SpreadShootStrategy;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
@@ -34,6 +38,9 @@ public class Game extends JPanel {
     private final List<BaseBullet> heroBullets;
     private final List<BaseBullet> enemyBullets;
     private final List<AbstractProp> props;
+    private final ScoreDao scoreDao = new ScoreDaoImpl();
+    private static final String DEFAULT_DIFFICULTY = "normal";
+    private static final String DEFAULT_PLAYER_NAME = "Player";
 
     //敌机工厂实例（工厂方法模式）
     private final EnemyFactory mobEnemyFactory = new MobEnemyFactory();
@@ -372,6 +379,7 @@ public class Game extends JPanel {
         if (heroAircraft.getHp() <= 0 && !gameOverFlag) {
             gameOverFlag = true;
             System.out.println("Game Over!");
+            saveAndPrintScoreRecord();
             // 延迟取消定时器，避免立即停止导致异常
             TimerTask stopTask = new TimerTask() {
                 @Override
@@ -383,6 +391,22 @@ public class Game extends JPanel {
             stopTimer.schedule(stopTask, 100); // 延迟100ms停止
         }
     };
+
+    private void saveAndPrintScoreRecord() {
+        ScoreRecord record = new ScoreRecord(DEFAULT_DIFFICULTY, DEFAULT_PLAYER_NAME, score, LocalDateTime.now());
+        scoreDao.addRecord(record);
+        List<ScoreRecord> records = scoreDao.getRecords(DEFAULT_DIFFICULTY);
+
+        System.out.println("****************");
+        System.out.println("排行榜");
+        System.out.println("****************");
+        System.out.println("排名\t玩家名\t得分\t记录时间");
+        for (int i = 0; i < records.size(); i++) {
+            ScoreRecord item = records.get(i);
+            System.out.printf("%d\t%s\t%d\t%s%n", i + 1, item.getPlayerName(), item.getScore(), item.getTimeText());
+        }
+        System.out.println("****************");
+    }
 
     //***********************
     //      Paint 各部分

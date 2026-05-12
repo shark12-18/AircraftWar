@@ -1,0 +1,53 @@
+@startuml DAO
+'DAO模式 - 排行榜数据访问
+
+title DAO模式 —— 排行榜数据访问
+
+class ScoreRecord {
+    - difficulty: String
+    - playerName: String
+    - score: int
+    - recordTime: LocalDateTime
+    + ScoreRecord(String difficulty, String playerName, int score, LocalDateTime recordTime)
+    + getDifficulty(): String
+    + getPlayerName(): String
+    + getScore(): int
+    + getRecordTime(): LocalDateTime
+    + getTimeText(): String
+    + toCsvLine(): String
+    + {static} fromCsvLine(String line): ScoreRecord
+}
+
+interface ScoreDao {
+    + addRecord(ScoreRecord record): void
+    + getRecords(String difficulty): List<ScoreRecord>
+    + deleteRecord(String difficulty, int rank): void
+}
+
+class ScoreDaoImpl {
+    - dataDir: Path
+    + ScoreDaoImpl()
+    + ScoreDaoImpl(Path dataDir)
+    + addRecord(ScoreRecord record): void
+    + getRecords(String difficulty): List<ScoreRecord>
+    + deleteRecord(String difficulty, int rank): void
+}
+
+class Game {
+    - scoreDao: ScoreDao
+    - saveAndPrintScoreRecord(): void
+}
+
+ScoreDao <|.. ScoreDaoImpl
+ScoreDaoImpl ..> ScoreRecord : <<reads/writes>>
+Game o--> ScoreDao : scoreDao
+Game ..> ScoreRecord : <<creates>>
+
+note right of ScoreDaoImpl
+  每个游戏难度对应独立文件：
+  data/easy.csv
+  data/normal.csv
+  data/hard.csv
+end note
+
+@enduml

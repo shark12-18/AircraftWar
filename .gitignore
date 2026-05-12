@@ -85,6 +85,7 @@ build/
 
 ## 可能存在的测试数据
 test-data/
+data/*.csv
 
 ## 本地开发环境配置
 local.properties
